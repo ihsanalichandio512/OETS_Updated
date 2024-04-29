@@ -9,6 +9,7 @@ if($_SESSION['role_id']==3){
     if(!$_SESSION['username']){
         header("location:../index.php");
     }       
+    
 ?> 
     <!DOCTYPE html>
     <html lang="en">
@@ -61,11 +62,14 @@ if($_SESSION['role_id']==3){
                 ?>
                  <div class="container-fluid pt-4 px-4">
                     <div class="row g-4">
-                    <?php
+                    <?php  
                     $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
                     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
+                    
                     $setuser = mysqli_query($conn,$isCheated);
                     $set = mysqli_query($conn,$getExamCheck);
+                    $row = mysqli_fetch_array($set);
+                    
                     if(mysqli_num_rows($set) && mysqli_num_rows($setuser)>0){
                         ?>
                        <div class="col-sm-6 col-xl-3">
@@ -92,6 +96,10 @@ if($_SESSION['role_id']==3){
                         <?php
                     }
                     ?>
+
+                    <?php
+                        $sql = "";
+                    ?>
                     <div class="col-sm-6 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
                             <div class="ms-3">
@@ -100,7 +108,9 @@ if($_SESSION['role_id']==3){
                             </div>
                         </div>
                     </div>
+<?php 
 
+?>
                     <div class="col-sm-6 col-xl-3">
                         <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
                             <div class="ms-3">

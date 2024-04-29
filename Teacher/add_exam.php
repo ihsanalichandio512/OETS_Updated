@@ -161,7 +161,8 @@ session_start();
                                 $subject_id = $_POST['subject'];
                                 $teacher_id = $_POST['teacher'];
 
-                                $ssql = "SELECT subject_id,exam_type FROM exams WHERE exams.subject_id = $subject_id AND exams.exam_type = '$exam_type'";
+                                // $ssql = "SELECT subject_id,exam_type FROM exams WHERE exams.subject_id = $subject_id AND exams.exam_type = '$exam_type'";
+                                $ssql = "SELECT * FROM exams WHERE exams.subject_id = '$subject_id' AND exams.exam_type = '$exam_type' AND exams.exam_duration_minutes= '$exam_duration_minutes' AND exams.start_datetime= '$exam_start_time'";
                                
                                 $check = mysqli_query($conn,$ssql);
                                 

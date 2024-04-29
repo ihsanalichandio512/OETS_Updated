@@ -35,5 +35,17 @@ if($sql){
     </script>
     <?php
     header("location:./start_exam.php");
+}else{
+    ?>
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+            <button type="button" class="close btn" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <strong>Exam Can't Deleted.</strong>
+        </div>
+        <script>
+            $(".alert").alert();
+        </script>
+        <?php
 }
 ?>

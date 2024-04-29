@@ -9,6 +9,11 @@ if ($_SESSION['role_id'] == 3) {
     if (!$_SESSION['username']) {
         header("location:../index.php");
     }
+    $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
+                    $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
+                    $setuser = mysqli_query($conn,$isCheated);
+                    $set = mysqli_query($conn,$getExamCheck);
+                    if(mysqli_num_rows($set) && mysqli_num_rows($setuser)>0){
 ?>
 
     <!DOCTYPE html>
@@ -44,60 +49,117 @@ if ($_SESSION['role_id'] == 3) {
     </head>
 
     <body>
-        <div class="content">
-            <div class="container-fluid">
-                <div class="d-flex align-items-center ms-4 mb-4">
+    <div class="container-xxl position-relative bg-white d-flex p-0">
+            <!-- Spinner Start -->
+            <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+            -->
+            <div class="content">
+                <div class="container-fluid">
                     <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
-                        <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                        <div class="col-12 col-sm-10 col-md-9 col-lg-8 col-xl-8">
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
+                                <div class="d-flex align-items-center justify-content-center mb-3">  
+                                </div>
+                                <h3 class="text-center">Fetch Exam</h3>
                                 <div class="form-floating mb-3">
                                     <?php
-                                    $get_semester_id = $_SESSION['semester_id'];
-                                    $get_exam = "SELECT * FROM exams WHERE exams.semester_id = '$get_semester_id'";
-                                    $result = mysqli_query($conn, $get_exam);
-                                    if (mysqli_num_rows($result) > 0) {
-                                       ?>
-                                         <select class="form-select form-select-sm mb-3" aria-label=".form-select-sm example">
-                                        <option selected disabled>Select Exam Type</option>
-                                        <?php
-                                        while($row = mysqli_fetch_array($result)){
-                                            ?>
-                                        <option value="<?php echo $row['exam_id']?>"><?php echo $row['exam_type']; ?></option>
-                                            <?php
-                                        }
+                                    $sql = "SELECT fill_in_the_blanks.* , exams.* FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = fill_in_the_blanks.exam_id";
+                                    $query = mysqli_query($conn, $sql);
+                                    if(mysqli_num_rows($query)>0){
                                         ?>
-                            </select>
-                                       <?php
+                                        <a href="./fill_in_the_blanks.php"><button type="button" class="btn btn-primary m-2">Fill in the Blanks</button></a>
+                                        <?php
+                                    }else{
+                                        ?>
+                                        <button type="button"  class="disabled btn btn-primary m-2">Exam will Be Soon</button>
+                                        <?php
                                     }
                                     ?>
-                                </div>
+                                    <?php
+                                    $sql = "SELECT multiple_choice_questions.* , exams.* FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = multiple_choice_questions.exam_id";
+                                    $query = mysqli_query($conn, $sql);
+                                    if(mysqli_num_rows($query)>0){
+                                        ?>
+                                        <a href="./mcqs.php"><button type="button" class="btn btn-primary m-2">MCQS</button></a>
+                                        <?php
+                                    }else{
+                                        ?>
+                                        <button type="button"  class="disabled btn btn-primary m-2">Exam will Be Soon</button>
+                                        <?php
+                                    }
+                                    ?>
+
+<?php
+                                    $sql = "SELECT questions.* , exams.* FROM questions INNER JOIN exams ON questions.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = questions.exam_id";
+                                    $query = mysqli_query($conn, $sql);
+                                    if(mysqli_num_rows($query)>0){
+                                        ?>
+                                        <a href="./questions.php"><button type="button" class="btn btn-primary m-2">Long Answers</button></a>
+                                        <?php
+                                    }else{
+                                        ?>
+                                        <button type="button"  class="disabled btn btn-primary m-2">Exam will Be Soon</button>
+                                        <?php
+                                    }
+                                    ?>
+<?php
+                                    $sql = "SELECT true_false_question.* , exams.* FROM true_false_question INNER JOIN exams ON true_false_question.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = true_false_question.exam_id";
+                                    $query = mysqli_query($conn, $sql);
+                                    if(mysqli_num_rows($query)>0){
+                                        ?>
+                                        <a href="./true_false_question.php"><button type="button" class="btn btn-primary m-2">True False Question</button></a>
+                                        <?php
+                                    }else{
+                                        ?>
+                                        <button type="button"  class="disabled btn btn-primary m-2">Exam will Be Soon</button>
+                                        <?php
+                                    }
+                                    ?>
+                                
+                                    
                             </div>
+
+
+                                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                               
+                                </form>
                         </div>
                     </div>
                 </div>
+
+
             </div>
         </div>
+        <script
+  src="https://code.jquery.com/jquery-3.7.1.js"
+  integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+  crossorigin="anonymous"></script>
 
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="../lib/chart/chart.min.js"></script>
+            <script src="../lib/easing/easing.min.js"></script>
+            <script src="../lib/waypoints/waypoints.min.js"></script>
+            <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+            <script src="../lib/tempusdominus/js/moment.min.js"></script>
+            <script src="../lib/tempusdominus/js/moment-timezone.min.js"></script>
+            <script src="../lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-
-        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="../lib/chart/chart.min.js"></script>
-        <script src="../lib/easing/easing.min.js"></script>
-        <script src="../lib/waypoints/waypoints.min.js"></script>
-        <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-        <script src="../lib/tempusdominus/js/moment.min.js"></script>
-        <script src="../lib/tempusdominus/js/moment-timezone.min.js"></script>
-        <script src="../lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-        <!-- Template Javascript -->
-        <script src="../js/main.js"></script>
+            <!-- Template Javascript -->
+            <script src="../js/main.js"></script>
     </body>
 
     </html>
 
 <?php
-} else {
+}else{
+    header("location:./student.php");
+} 
+}else {
     header("location:./student.php");
 }
 ?>

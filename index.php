@@ -62,7 +62,7 @@ include "./db/dbConnection.php";
                     </a>
                 </div>
                 <h3 class="text-center">Sign In</h3>
-                <form action="<?php $_SERVER['PHP_SELF'] ?>" id="loginForm" method="post">
+                <form action="<?php $_SERVER['PHP_SELF'] ?>" method="post">
                     <div class="form-floating mb-3">
                         <input type="text" name="username" class="form-control" id="floatingInput" placeholder="name@example.com" value="<?php echo isset($_POST['username']) ? htmlspecialchars($_POST['username']) : ''; ?>">
                         <label for="floatingInput">Username</label>
@@ -73,12 +73,12 @@ include "./db/dbConnection.php";
                         <i id="togglePassword" class="bi bi-eye-slash set fs-6 position-absolute top-50 end-0 translate-middle-y"></i>
                     </div>
                     <div class="d-flex align-items-center justify-content-between mb-4">
-                        <a href="">Forgot Password</a>
+                        <!-- <a href="">Forgot Password</a> -->
                     </div>
                     <button type="submit" name="login" class="btn btn-primary py-3 w-100 mb-4">Login</button>
                     <p class="text-center mb-0">Don't have an Account? <a href="register.php">Sign Up</a></p>
                     <div style="display: none;" id="fail" class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <button type="button" class=" btn close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                         <strong>Username or password is invalid</strong>
@@ -106,15 +106,16 @@ togglePassword.addEventListener('click', function () {
 
             <?php
             if(isset($_POST['login'])){
-                $username = mysqli_real_escape_string($conn,$_POST['username']);
+                $username = $_POST['username'];
                 $password = $_POST['password'];
 
-                $sql = "SELECT users.user_id, users.username, users.role_id, students.semester_id, users.password 
-                FROM users 
-                INNER JOIN students ON students.user_id = users.user_id 
-                LIMIT 0, 25;";
+                $sql = "SELECT users.user_id, users.username, users.role_id, users.password 
+                FROM users where users.username = '$username';
+                ";
+                $getSemester = "SELECT semesters.semester_id FROM semesters";
                 $result = mysqli_query($conn, $sql) or die("Query Failed");
-
+                $getSemesterResult = mysqli_query($conn,$getSemester);
+                $getSemester_id =mysqli_fetch_array($getSemesterResult);
                 if(mysqli_num_rows($result) > 0) {
                 $row = mysqli_fetch_assoc($result);
                 $hashed_password = $row['password'];
@@ -125,7 +126,7 @@ togglePassword.addEventListener('click', function () {
                     $_SESSION['username'] = $row['username'];
                     $_SESSION['user_id'] = $row['user_id'];
                     $_SESSION['role_id'] = $row['role_id'];
-                    $_SESSION['semester_id'] = $row['semester_id'];
+                    $_SESSION['semester_id'] = $getSemester_id['semester_id'];
                     mysqli_free_result($result);
                     // header("location: admin_dashboard.php");
                     if($_SESSION['role_id']== 4){
