@@ -9,10 +9,17 @@ if ($_SESSION['role_id'] == 4) {
     if (!$_SESSION['username']) {
         header("location:../index.php");
     }
-    $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
+    $getExamCheck = "SELECT *,
+    TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
+FROM `exams`
+WHERE exams.exam_status = 'active'
+AND start_datetime = CURDATE()
+OR DATEDIFF(start_datetime, CURDATE()) = 1";
     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
     $setuser = mysqli_query($conn, $isCheated);
     $set = mysqli_query($conn, $getExamCheck);
+    $get_exam_details = mysqli_fetch_array($set);
+    $get_student_details = mysqli_fetch_array($setuser);
     if (mysqli_num_rows($set) && mysqli_num_rows($setuser) > 0) {
 ?>
 
@@ -46,6 +53,40 @@ if ($_SESSION['role_id'] == 4) {
 
             <!-- Template Stylesheet -->
             <link href="../css/style.css" rel="stylesheet">
+
+            <!-- code for disable copy cut paste right click and selection -->
+            <script>
+        // Disable copy-paste
+        document.addEventListener('copy', function(event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('cut', function(event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('paste', function(event) {
+            event.preventDefault();
+        });
+
+        // Disable right-click
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+
+        // Disable text selection
+        document.addEventListener('selectstart', function(event) {
+            event.preventDefault();
+        });
+
+        // Disable keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if ((event.ctrlKey || event.metaKey) && (event.keyCode == 67 || event.keyCode == 86 || event.keyCode == 88)) {
+                event.preventDefault();
+            }
+        });
+    </script>
+            <!-- ends here -->
         </head>
 
         <body>
@@ -65,35 +106,80 @@ if ($_SESSION['role_id'] == 4) {
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
 
                                 <h3 class="text-center">Fill In the Blanks</h3>
+
                                 <?php
-                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks ORDER BY RAND()";
+                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks ORDER BY RAND()  LIMIT 20";
                                 $query = mysqli_query($conn, $get_fill_in_the_blanks);
                                 $count = 1;
+
+                                // Assuming you have a unique identifier for each question, such as 'question_id'
                                 while ($row = mysqli_fetch_assoc($query)) {
+                                    $question_id = $row['question_id'];
                                 ?>
                                     <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                                         <label for="" class="col-sm-12 col-form-label"><?php echo $count++ . ". " . $row['question_text'] ?></label>
                                         <div class="row mb-3">
                                             <div class="col-sm-12">
-                                                <input type="text" class="form-control" id="">
+                                                <!-- Ensure each input field has a unique name to identify it -->
+                                                <input type="text" class="form-control" name="answer_<?php echo $question_id; ?>" id="">
                                             </div>
                                         </div>
                                     <?php
                                 }
                                     ?>
-
-
                                     <button type="submit" name="submit" class="btn btn-primary py-3 w-100 mb-4">Submit</button>
+                                    </form>
+
+                                    <?php
+                                    if (isset($_POST['submit'])) {
+                                        // Loop through each question ID to extract the user's answer
+                                        $_SESSION['username'] = $row['username'];
+                                        $_SESSION['user_id'] = $row['user_id'];
+                                        $_SESSION['role_id'] = $row['role_id'];
+                                        $_SESSION['semester_id'] = $getSemester_id['semester_id'];
+                                        
+                                        foreach ($_POST as $key => $value) {
+                                            if (strpos($key, 'answer_') !== false) {
+                                                // Extract the question ID from the input field name
+                                                $question_id = substr($key, strlen('answer_'));
+
+                                                // Get the user's answer for this question
+                                                $answer = $_POST[$key];
+
+                                                // Insert the user's answer into the database
+                                                // Modify this query to suit your database schema and table structure
+                                                $insert_query = "
+                                                INSERT INTO `exam_results`(`user_id`, `exam_id`, `semester_id`, `batch_id`, `long_answer_score`, `mcq_score`, `true_false_score`, `fill_in_the_blanks_score`, `score`, `total_questions`, `start_time`, `end_time`, `date_completed`) 
+                                                    VALUES (
+                                                        'user_id_value',
+                                                        'exam_id_value',
+                                                        'semester_id_value',
+                                                        'batch_id_value',
+                                                        'long_answer_score_value',
+                                                        'mcq_score_value',
+                                                        'true_false_score_value',
+                                                        'fill_in_the_blanks_score_value',
+                                                        'total_score_value',
+                                                        'total_questions_value',
+                                                        'start_time_value',
+                                                        'end_time_value',
+                                                        'date_completed_value'
+                                                    );
+                                                ";
+                                                // Execute the query
+                                                // mysqli_query($conn, $insert_query);
+                                                // Handle query execution result as needed
+                                            }
+                                        }
+                                    }
+                                    ?>
+
                             </div>
-
-                            </form>
-
                         </div>
                     </div>
+
+
                 </div>
-
-
-            </div>
             </div>
 
             <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
