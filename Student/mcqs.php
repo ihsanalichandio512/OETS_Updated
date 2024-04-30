@@ -51,6 +51,39 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
 
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
+        <!-- code for disable copy cut paste right click and selection -->
+        <script>
+        // Disable copy-paste
+        document.addEventListener('copy', function(event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('cut', function(event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('paste', function(event) {
+            event.preventDefault();
+        });
+
+        // Disable right-click
+        document.addEventListener('contextmenu', function(event) {
+            event.preventDefault();
+        });
+
+        // Disable text selection
+        document.addEventListener('selectstart', function(event) {
+            event.preventDefault();
+        });
+
+        // Disable keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            if ((event.ctrlKey || event.metaKey) && (event.keyCode == 67 || event.keyCode == 86 || event.keyCode == 88)) {
+                event.preventDefault();
+            }
+        });
+    </script>
+            <!-- ends here -->
     </head>
 
     <body>

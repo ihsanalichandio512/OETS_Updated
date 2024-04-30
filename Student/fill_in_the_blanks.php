@@ -56,36 +56,36 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
 
             <!-- code for disable copy cut paste right click and selection -->
             <script>
-        // Disable copy-paste
-        document.addEventListener('copy', function(event) {
-            event.preventDefault();
-        });
+                // Disable copy-paste
+                document.addEventListener('copy', function(event) {
+                    event.preventDefault();
+                });
 
-        document.addEventListener('cut', function(event) {
-            event.preventDefault();
-        });
+                document.addEventListener('cut', function(event) {
+                    event.preventDefault();
+                });
 
-        document.addEventListener('paste', function(event) {
-            event.preventDefault();
-        });
+                document.addEventListener('paste', function(event) {
+                    event.preventDefault();
+                });
 
-        // Disable right-click
-        document.addEventListener('contextmenu', function(event) {
-            event.preventDefault();
-        });
+                // Disable right-click
+                document.addEventListener('contextmenu', function(event) {
+                    event.preventDefault();
+                });
 
-        // Disable text selection
-        document.addEventListener('selectstart', function(event) {
-            event.preventDefault();
-        });
+                // Disable text selection
+                document.addEventListener('selectstart', function(event) {
+                    event.preventDefault();
+                });
 
-        // Disable keyboard shortcuts
-        document.addEventListener('keydown', function(event) {
-            if ((event.ctrlKey || event.metaKey) && (event.keyCode == 67 || event.keyCode == 86 || event.keyCode == 88)) {
-                event.preventDefault();
-            }
-        });
-    </script>
+                // Disable keyboard shortcuts
+                document.addEventListener('keydown', function(event) {
+                    if ((event.ctrlKey || event.metaKey) && (event.keyCode == 67 || event.keyCode == 86 || event.keyCode == 88)) {
+                        event.preventDefault();
+                    }
+                });
+            </script>
             <!-- ends here -->
         </head>
 
@@ -104,8 +104,9 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
                     <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
                         <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
-
                                 <h3 class="text-center">Fill In the Blanks</h3>
+
+
 
                                 <?php
                                 $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks ORDER BY RAND()  LIMIT 20";
@@ -132,12 +133,7 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
 
                                     <?php
                                     if (isset($_POST['submit'])) {
-                                        // Loop through each question ID to extract the user's answer
-                                        $_SESSION['username'] = $row['username'];
-                                        $_SESSION['user_id'] = $row['user_id'];
-                                        $_SESSION['role_id'] = $row['role_id'];
-                                        $_SESSION['semester_id'] = $getSemester_id['semester_id'];
-                                        
+                                       
                                         foreach ($_POST as $key => $value) {
                                             if (strpos($key, 'answer_') !== false) {
                                                 // Extract the question ID from the input field name
@@ -149,26 +145,14 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
                                                 // Insert the user's answer into the database
                                                 // Modify this query to suit your database schema and table structure
                                                 $insert_query = "
-                                                INSERT INTO `exam_results`(`user_id`, `exam_id`, `semester_id`, `batch_id`, `long_answer_score`, `mcq_score`, `true_false_score`, `fill_in_the_blanks_score`, `score`, `total_questions`, `start_time`, `end_time`, `date_completed`) 
-                                                    VALUES (
-                                                        'user_id_value',
-                                                        'exam_id_value',
-                                                        'semester_id_value',
-                                                        'batch_id_value',
-                                                        'long_answer_score_value',
-                                                        'mcq_score_value',
-                                                        'true_false_score_value',
-                                                        'fill_in_the_blanks_score_value',
-                                                        'total_score_value',
-                                                        'total_questions_value',
-                                                        'start_time_value',
-                                                        'end_time_value',
-                                                        'date_completed_value'
-                                                    );
+                                                INSERT INTO answers( `question_id`, `answer_text`) VALUES ('$question_id','$answer')
                                                 ";
-                                                // Execute the query
-                                                // mysqli_query($conn, $insert_query);
-                                                // Handle query execution result as needed
+                                                $store_question = mysqli_query($conn, $insert_query);
+                                                if ($store_question){
+                                                    echo "success";
+                                                }else{
+                                                    echo "Unsuccess";
+                                                    }
                                             }
                                         }
                                     }

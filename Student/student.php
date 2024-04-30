@@ -1,16 +1,16 @@
 <?php
 session_start();
 include "../db/dbConnection.php";
-if($_SESSION['role_id']==3){
+if ($_SESSION['role_id'] == 3) {
     header("location:../Teacher/teacher.php");
-}elseif($_SESSION['role_id']==4){
+} elseif ($_SESSION['role_id'] == 4) {
     header("location:../Admin/admin.php");
-}elseif($_SESSION['role_id']==1){
-    if(!$_SESSION['username']){
+} elseif ($_SESSION['role_id'] == 1) {
+    if (!$_SESSION['username']) {
         header("location:../index.php");
-    }       
-    
-?> 
+    }
+
+?>
     <!DOCTYPE html>
     <html lang="en">
 
@@ -46,11 +46,11 @@ if($_SESSION['role_id']==3){
     <body>
         <div class="container-xxl position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
-            <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-            </div>
+            </div> -->
             <!-- Spinner End -->
             <?php
             include "../includes/sidebar.php";
@@ -60,95 +60,105 @@ if($_SESSION['role_id']==3){
                 <?php
                 include "../includes/navbar.php";
                 ?>
-                 <div class="container-fluid pt-4 px-4">
+                <div class="container-fluid pt-4 px-4">
                     <div class="row g-4">
-                    <?php  
-                    // $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
-                    $getExamCheck = "SELECT *,
+                        <?php
+                        // $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
+                        $getExamCheck = "SELECT *,
                     TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
              FROM `exams`
              WHERE exams.exam_status = 'active'
              AND start_datetime = CURDATE()
              OR DATEDIFF(start_datetime, CURDATE()) = 1";
-                    $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
-                    
-                    $setuser = mysqli_query($conn,$isCheated);
-                    $set = mysqli_query($conn,$getExamCheck);
-                    $row = mysqli_fetch_array($set);
-                    
-                    if(mysqli_num_rows($set) && mysqli_num_rows($setuser)>0){
-                        ?>
-                       <div class="col-sm-6 col-xl-3">
-                        <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
-                            <div class="ms-3">
-                                <p class="mb-2">Give Exam</p>
-                                <a href="./give_exam.php" class="mb-0"><input type="button" class="btn btn-primary " value="Give Exam"></a>
-                            </div>
-                        </div>
-                    </div>
+                        $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
 
-                    <?php
-                    }else{
+                        $setuser = mysqli_query($conn, $isCheated);
+                        $set = mysqli_query($conn, $getExamCheck);
+                        $row = mysqli_fetch_array($set);
+
+                        if (mysqli_num_rows($set) && mysqli_num_rows($setuser) > 0) {
                         ?>
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
-                            <div class="ms-3">
-                                <p class="mb-2 disabled"><strong>Exam Will Be Soon</strong></p>
-                                <input type="button" class="btn btn-primary disabled" value="Exam Will Be Soon">
+                            <div class="col-sm-6 col-xl-3">
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
+                                    <div class="ms-3">
+                                        <p class="mb-2">Give Exam</p>
+                                        <a href="./give_exam.php" class="mb-0"><input type="button" class="btn btn-primary " value="Give Exam"></a>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
 
                         <?php
-                    }
-                    ?>
-
-                    <?php
-                        $sql = "";
-                    ?>
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
-                            <div class="ms-3">
-                                <p class="mb-2">Get Result</p>
-                                <a href="" class="mb-0"><input type="button" class="btn btn-primary " value="Get Result"></a>
+                        } else {
+                        ?>
+                            <div class="col-sm-6 col-xl-3">
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
+                                    <div class="ms-3">
+                                        <p class="mb-2 disabled"><strong>Exam Will Be Soon</strong></p>
+                                        <input type="button" class="btn btn-primary disabled" value="Exam Will Be Soon">
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-<?php 
 
+                        <?php
+                        }
+                        ?>
+
+                        <?php
+                        $getUser_id = $_SESSION['user_id'];
+                        $sql = "SELECT * From exam_results WHERE exam_results.user_id = '$getUser_id'";
+                        $settt = mysqli_query($conn, $sql);
+                        if (mysqli_num_rows($settt) > 0) {
+                        ?>
+                            <div class="col-sm-6 col-xl-3">
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
+                                    <div class="ms-3">
+                                        <p class="mb-2">Get Result</p>
+                                        <a href="" class="mb-0"><input type="button" class="btn btn-primary " value="Get Result"></a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <?php
+                        }else{
+                            ?>
+                        <div class="col-sm-7 col-xl-5">
+                                <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
+                                    <div class="ms-3">
+                                        <p class="mb-1">Complete Exams To Get Result</p>
+                                        <input type="button" class="btn btn-primary disabled" value="Result Will Be Soon">
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                        }
+                        ?>
+                        <?php
+
+                        ?>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script src="../lib/chart/chart.min.js"></script>
+            <script src="../lib/easing/easing.min.js"></script>
+            <script src="../lib/waypoints/waypoints.min.js"></script>
+            <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+            <script src="../lib/tempusdominus/js/moment.min.js"></script>
+            <script src="../lib/tempusdominus/js/moment-timezone.min.js"></script>
+            <script src="../lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+            <!-- Template Javascript -->
+            <script src="../js/main.js"></script>
+    </body>
+
+    </html>
+
+<?php
+} else {
+    header("location:../index.php");
+}
 ?>
-                    <div class="col-sm-6 col-xl-3">
-                        <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
-                            <div class="ms-3">
-                                <p class="mb-2">Profile</p>
-                                <a href="" class="mb-0"><input type="button" class="btn btn-primary " value="Profile"></a>
-                            </div>
-                        </div>
-                    </div>
-
-                    </div>
-                 </div>
-   
-</div>
- 
- <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-     <script src="../lib/chart/chart.min.js"></script>
-     <script src="../lib/easing/easing.min.js"></script>
-     <script src="../lib/waypoints/waypoints.min.js"></script>
-     <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-     <script src="../lib/tempusdominus/js/moment.min.js"></script>
-     <script src="../lib/tempusdominus/js/moment-timezone.min.js"></script>
-     <script src="../lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
- 
-     <!-- Template Javascript -->
-     <script src="../js/main.js"></script>
- </body>
- 
- </html>
- 
- <?php
- }else{
-  header("location:../index.php");
- }
- ?>
