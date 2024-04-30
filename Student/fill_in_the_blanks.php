@@ -150,6 +150,7 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
                                                 $store_question = mysqli_query($conn, $insert_query);
                                                 if ($store_question){
                                                     echo "success";
+                                                    
                                                 }else{
                                                     echo "Unsuccess";
                                                     }
