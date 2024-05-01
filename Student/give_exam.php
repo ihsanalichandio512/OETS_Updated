@@ -51,12 +51,12 @@ if ($_SESSION['role_id'] == 3) {
     <body>
     <div class="container-xxl position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
-            <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
             </div>
-            -->
+           
             <div class="content">
                 <div class="container-fluid">
                     <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
@@ -67,7 +67,8 @@ if ($_SESSION['role_id'] == 3) {
                                 <h3 class="text-center">Fetch Exam</h3>
                                 <div class="form-floating mb-3">
                                     <?php
-                                    $sql = "SELECT fill_in_the_blanks.* , exams.* FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = fill_in_the_blanks.exam_id";
+                                    // $sql = "SELECT fill_in_the_blanks.* , exams.* FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = fill_in_the_blanks.exam_id";
+                                    $sql = "SELECT fill_in_the_blanks.* , exams.* FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = fill_in_the_blanks.exam_id AND fill_in_the_blanks.is_completed = 'not_completed'";
                                     $query = mysqli_query($conn, $sql);
                                     if(mysqli_num_rows($query)>0){
                                         ?>

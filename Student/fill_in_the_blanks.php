@@ -109,7 +109,12 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
 
 
                                 <?php
-                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks ORDER BY RAND()  LIMIT 20";
+                                $getExam_id = "SELECT exams.exam_id FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id";
+                                $exam_id_query = mysqli_query($conn,$getExam_id);
+                                $get_exam_id_as = mysqli_fetch_array($exam_id_query);
+                                $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
+
+                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 10";
                                 $query = mysqli_query($conn, $get_fill_in_the_blanks);
                                 $count = 1;
 
@@ -133,27 +138,26 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
 
                                     <?php
                                     if (isset($_POST['submit'])) {
-                                       
+
                                         foreach ($_POST as $key => $value) {
                                             if (strpos($key, 'answer_') !== false) {
-                                                // Extract the question ID from the input field name
                                                 $question_id = substr($key, strlen('answer_'));
-
-                                                // Get the user's answer for this question
                                                 $answer = $_POST[$key];
-
-                                                // Insert the user's answer into the database
-                                                // Modify this query to suit your database schema and table structure
+                                                $getUser_id = $_SESSION['user_id'];
+                                                $getUserSemester = $_SESSION['semester_id'];
+                                                
                                                 $insert_query = "
-                                                INSERT INTO answers( `question_id`, `answer_text`) VALUES ('$question_id','$answer')
+                                                INSERT INTO answers( question_id, user_id, semester_id,exam_id, answer_text) VALUES ('$question_id','$getUser_id','$getUserSemester','$GET_ID_OF_EXAM','$answer')
                                                 ";
                                                 $store_question = mysqli_query($conn, $insert_query);
-                                                if ($store_question){
+                                                if ($store_question) {
                                                     echo "success";
-                                                    
-                                                }else{
+                                                    $update = "UPDATE fill_in_the_blanks SET is_completed = 'completed' WHERE fill_in_the_blanks.exam_id = '$question_id' ";
+
+                                                    $upadted = mysqli_query($conn, $update);
+                                                } else {
                                                     echo "Unsuccess";
-                                                    }
+                                                }
                                             }
                                         }
                                     }
