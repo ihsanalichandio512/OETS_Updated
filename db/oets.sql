@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 30, 2024 at 02:09 PM
+-- Generation Time: May 01, 2024 at 10:42 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,40 +24,57 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `active_sessions`
+--
+
+CREATE TABLE `active_sessions` (
+  `session_id` varchar(255) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `login_timestamp` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `answers`
 --
 
 CREATE TABLE `answers` (
   `answer_id` int(11) NOT NULL,
   `question_id` int(11) DEFAULT NULL,
-  `answer_text` text DEFAULT NULL
+  `user_id` int(11) DEFAULT NULL,
+  `semester_id` int(11) DEFAULT NULL,
+  `exam_id` int(11) DEFAULT NULL,
+  `answer_text` text DEFAULT NULL,
+  `selected_option` varchar(1) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `answers`
 --
 
-INSERT INTO `answers` (`answer_id`, `question_id`, `answer_text`) VALUES
-(1, 5, 'H2O'),
-(2, 7, 'Width'),
-(3, 10, 'Pacfic'),
-(4, 9, 'Geogire washinton'),
-(5, 8, 'O'),
-(6, 22, 'AU'),
-(7, 21, 'Shara'),
-(8, 12, '2'),
-(9, 11, 'photosenticis'),
-(10, 20, 'c2'),
-(11, 3, 'Paris'),
-(12, 1, 'Teacher'),
-(13, 16, ''),
-(14, 2, 'Charles Babage'),
-(15, 4, 'Jupiter'),
-(16, 17, 'pi'),
-(17, 19, 'geology'),
-(18, 18, '206'),
-(19, 13, 'biology'),
-(20, 6, '7');
+INSERT INTO `answers` (`answer_id`, `question_id`, `user_id`, `semester_id`, `exam_id`, `answer_text`, `selected_option`) VALUES
+(44, 10, 4, 6, 3, 'jkhjk', NULL),
+(45, 10, 4, 6, 3, 'jkhjk', NULL),
+(46, 8, 4, 6, 3, 'hjkhk', NULL),
+(47, 17, 4, 6, 3, 'khkj', NULL),
+(48, 20, 4, 6, 3, 'jhjk', NULL),
+(49, 2, 4, 6, 3, 'hjkh', NULL),
+(50, 15, 4, 6, 3, 'hkjk', NULL),
+(51, 11, 4, 6, 3, 'hjkh', NULL),
+(52, 18, 4, 6, 3, 'hjkhk', NULL),
+(53, 5, 4, 6, 3, 'hjkhjk', NULL),
+(54, 13, 4, 6, 3, 'hjkhk', NULL),
+(55, 4, 4, 6, 3, 'hjkhjk', NULL),
+(56, 21, 4, 6, 3, 'hjkh', NULL),
+(57, 9, 4, 6, 3, 'jkh', NULL),
+(58, 22, 4, 6, 3, 'jkh', NULL),
+(59, 14, 4, 6, 3, 'jkh', NULL),
+(60, 16, 4, 6, 3, 'jkhjk', NULL),
+(61, 6, 4, 6, 3, 'hjk', NULL),
+(62, 12, 4, 6, 3, 'hkj', NULL),
+(63, 3, 4, 6, 3, 'hkj', NULL),
+(64, 7, 4, 6, 3, 'kjh', NULL);
 
 -- --------------------------------------------------------
 
@@ -93,7 +110,7 @@ CREATE TABLE `exams` (
   `semester_id` int(11) NOT NULL,
   `subject_id` int(11) NOT NULL,
   `teacher_id` int(11) NOT NULL,
-  `batch_id` int(11) NOT NULL
+  `batch_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -101,7 +118,7 @@ CREATE TABLE `exams` (
 --
 
 INSERT INTO `exams` (`exam_id`, `exam_type`, `exam_duration_minutes`, `start_datetime`, `exam_status`, `semester_id`, `subject_id`, `teacher_id`, `batch_id`) VALUES
-(3, 'external_exam', 2, '2024-04-29', 'active', 6, 9, 16, 0),
+(3, 'external_exam', 2, '2024-05-01', 'active', 6, 9, 16, 0),
 (5, 'entry_test', 2, '2024-04-10', 'inactive', 6, 9, 16, 0),
 (6, '', 2, '2024-05-02', 'inactive', 6, 9, 16, 0),
 (8, 'internal_exam', 2, '2024-04-25', 'inactive', 6, 10, 16, 0),
@@ -142,36 +159,37 @@ CREATE TABLE `fill_in_the_blanks` (
   `question_text` text NOT NULL,
   `correct_answer` text NOT NULL,
   `exam_id` int(11) DEFAULT NULL,
-  `question_mark` int(11) NOT NULL
+  `question_mark` int(11) NOT NULL,
+  `is_completed` enum('completed','not_completed') NOT NULL DEFAULT 'not_completed'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `fill_in_the_blanks`
 --
 
-INSERT INTO `fill_in_the_blanks` (`question_id`, `question_text`, `correct_answer`, `exam_id`, `question_mark`) VALUES
-(1, 'ihsan ali is_____________ at aptech', 'teacher', 3, 10),
-(2, '_________________ is the father of comuter', 'Charles Babage', 5, 10),
-(3, 'The capital of France is ________', 'Paris', 3, 2),
-(4, 'The largest planet in our solar system is ________', 'Jupiter', 3, 2),
-(5, 'The chemical symbol for water is ________', 'H2O', 3, 2),
-(6, 'The number of continents on Earth is ________', '7', 3, 2),
-(7, 'The formula for calculating the area of a rectangle is length × ________', 'width', 5, 2),
-(8, 'The chemical symbol for oxygen is ________', 'O', 3, 2),
-(9, 'The first president of the United States was ________', 'George Washington', 5, 2),
-(10, 'The largest ocean on Earth is the ________ Ocean', 'Pacific', 5, 2),
-(11, 'The process of plants turning sunlight into energy is called ________', 'photosynthesis', 3, 2),
-(12, 'The smallest prime number is ________', '2', 3, 2),
-(13, 'The study of living organisms is called ________', 'biology', 5, 2),
-(14, 'The formula for calculating the circumference of a circle is ________', '2πr', 5, 2),
-(15, 'The chemical symbol for carbon is ________', 'C', 5, 2),
-(16, 'The primary colors are red, blue, and ________', 'yellow', 3, 2),
-(17, 'The distance around a circle is called the ________', 'circumference', 5, 2),
-(18, 'The human body has ________ bones', '206', 3, 3),
-(19, 'The study of the Earth\'s physical structure and substance is called ________', 'geology', 3, 2),
-(20, 'The formula for the Pythagorean theorem is a² + b² = ________', 'c²', 5, 2),
-(21, 'The largest desert in the world is the ________ Desert', 'Sahara', 3, 2),
-(22, 'The chemical symbol for gold is ________', 'Au', 3, 2);
+INSERT INTO `fill_in_the_blanks` (`question_id`, `question_text`, `correct_answer`, `exam_id`, `question_mark`, `is_completed`) VALUES
+(1, 'ihsan ali is_____________ at aptech', 'teacher', 3, 10, 'completed'),
+(2, '_________________ is the father of comuter', 'Charles Babage', 5, 10, 'not_completed'),
+(3, 'The capital of France is ________', 'Paris', 3, 2, 'completed'),
+(4, 'The largest planet in our solar system is ________', 'Jupiter', 3, 2, 'completed'),
+(5, 'The chemical symbol for water is ________', 'H2O', 3, 2, 'completed'),
+(6, 'The number of continents on Earth is ________', '7', 3, 2, 'completed'),
+(7, 'The formula for calculating the area of a rectangle is length × ________', 'width', 5, 2, 'not_completed'),
+(8, 'The chemical symbol for oxygen is ________', 'O', 3, 2, 'completed'),
+(9, 'The first president of the United States was ________', 'George Washington', 5, 2, 'not_completed'),
+(10, 'The largest ocean on Earth is the ________ Ocean', 'Pacific', 5, 2, 'not_completed'),
+(11, 'The process of plants turning sunlight into energy is called ________', 'photosynthesis', 3, 2, 'completed'),
+(12, 'The smallest prime number is ________', '2', 3, 2, 'completed'),
+(13, 'The study of living organisms is called ________', 'biology', 5, 2, 'not_completed'),
+(14, 'The formula for calculating the circumference of a circle is ________', '2πr', 5, 2, 'not_completed'),
+(15, 'The chemical symbol for carbon is ________', 'C', 5, 2, 'not_completed'),
+(16, 'The primary colors are red, blue, and ________', 'yellow', 3, 2, 'completed'),
+(17, 'The distance around a circle is called the ________', 'circumference', 5, 2, 'not_completed'),
+(18, 'The human body has ________ bones', '206', 3, 3, 'completed'),
+(19, 'The study of the Earth\'s physical structure and substance is called ________', 'geology', 3, 2, 'completed'),
+(20, 'The formula for the Pythagorean theorem is a² + b² = ________', 'c²', 5, 2, 'not_completed'),
+(21, 'The largest desert in the world is the ________ Desert', 'Sahara', 3, 2, 'completed'),
+(22, 'The chemical symbol for gold is ________', 'Au', 3, 2, 'completed');
 
 -- --------------------------------------------------------
 
@@ -201,35 +219,43 @@ CREATE TABLE `multiple_choice_questions` (
   `option_d` varchar(100) NOT NULL,
   `correct_option` enum('A','B','C','D') NOT NULL,
   `exam_id` int(11) DEFAULT NULL,
-  `question_mark` int(11) NOT NULL
+  `question_mark` int(11) NOT NULL,
+  `is_completed` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `multiple_choice_questions`
 --
 
-INSERT INTO `multiple_choice_questions` (`question_id`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, `correct_option`, `exam_id`, `question_mark`) VALUES
-(2, 'css full form', 'case sell section', 'call style center', 'call sector style', 'casecading stylesheet', 'D', 6, 10),
-(3, 'Question 1', 'Option A1', 'Option B1', 'Option C1', 'Option D1', 'A', 5, 2),
-(4, 'Question 2', 'Option A2', 'Option B2', 'Option C2', 'Option D2', 'B', 8, 2),
-(5, 'Question 3', 'Option A3', 'Option B3', 'Option C3', 'Option D3', 'C', 3, 2),
-(6, 'Question 4', 'Option A4', 'Option B4', 'Option C4', 'Option D4', 'D', 5, 2),
-(7, 'Question 5', 'Option A5', 'Option B5', 'Option C5', 'Option D5', 'A', 9, 2),
-(8, 'Question 6', 'Option A6', 'Option B6', 'Option C6', 'Option D6', 'B', 5, 2),
-(9, 'Question 7', 'Option A7', 'Option B7', 'Option C7', 'Option D7', 'C', 9, 2),
-(10, 'Question 8', 'Option A8', 'Option B8', 'Option C8', 'Option D8', 'D', 5, 2),
-(11, 'Question 9', 'Option A9', 'Option B9', 'Option C9', 'Option D9', 'A', 3, 2),
-(12, 'Question 10', 'Option A10', 'Option B10', 'Option C10', 'Option D10', 'B', 3, 2),
-(13, 'Question 11', 'Option A11', 'Option B11', 'Option C11', 'Option D11', 'C', 5, 2),
-(14, 'Question 12', 'Option A12', 'Option B12', 'Option C12', 'Option D12', 'D', 8, 2),
-(15, 'Question 13', 'Option A13', 'Option B13', 'Option C13', 'Option D13', 'A', 9, 2),
-(16, 'Question 14', 'Option A14', 'Option B14', 'Option C14', 'Option D14', 'B', 8, 2),
-(17, 'Question 15', 'Option A15', 'Option B15', 'Option C15', 'Option D15', 'C', 9, 2),
-(18, 'Question 16', 'Option A16', 'Option B16', 'Option C16', 'Option D16', 'D', 8, 2),
-(19, 'Question 17', 'Option A17', 'Option B17', 'Option C17', 'Option D17', 'A', 5, 2),
-(20, 'Question 18', 'Option A18', 'Option B18', 'Option C18', 'Option D18', 'B', 3, 2),
-(21, 'Question 19', 'Option A19', 'Option B19', 'Option C19', 'Option D19', 'C', 5, 2),
-(22, 'Question 20', 'Option A20', 'Option B20', 'Option C20', 'Option D20', 'D', 9, 2);
+INSERT INTO `multiple_choice_questions` (`question_id`, `question_text`, `option_a`, `option_b`, `option_c`, `option_d`, `correct_option`, `exam_id`, `question_mark`, `is_completed`) VALUES
+(23, 'What is the output of the following C code?', 'Hello', 'World', 'Hello World', 'No output', 'C', 3, 1, 0),
+(24, 'What is the default return type of a function in C?', 'int', 'void', 'float', 'char', 'B', 3, 1, 0),
+(25, 'How do you define a constant in C?', '#define', 'const', 'constant', 'final', 'A', 3, 1, 0),
+(26, 'Which operator is used to allocate memory dynamically in C?', 'malloc()', 'calloc()', 'alloc()', 'allocmem()', 'A', 3, 1, 0),
+(27, 'What will be the output of the following code snippet?', 'Syntax error', 'Garbage value', '10', '0', 'C', 3, 1, 0),
+(28, 'What is the size of int in C?', '2 bytes', '4 bytes', '8 bytes', 'Depends on the compiler', 'B', 3, 1, 0),
+(29, 'What is the correct way to declare an array in C?', 'int array[10];', 'array<int> arr;', 'array arr[10];', 'int arr[];', 'A', 3, 1, 0),
+(30, 'What is the result of the expression 5 + 2 * 3 in C?', '21', '11', '17', '13', 'D', 3, 1, 0),
+(31, 'What is the syntax to declare a pointer in C?', 'int *ptr;', 'int ptr;', 'ptr int;', 'int &ptr;', 'A', 3, 1, 0),
+(32, 'Which of the following is an escape sequence in C?', '\\n', '\\e', '\\t', '\\a', 'A', 3, 1, 0),
+(33, 'What is the purpose of #include<stdio.h> in C?', 'To include the I/O functions', 'To include the math functions', 'To include the string functions', 'To include the file handling functions', 'A', 3, 1, 0),
+(34, 'What will be the output of printf(\"%d\", 5 / 2); in C?', '2', '2.5', '2.0', '2.25', 'A', 3, 1, 0),
+(35, 'What is the correct syntax for a do-while loop in C?', 'do { // code } while (condition);', 'do (condition) { // code } while;', 'while (condition) { // code } do;', 'do (condition) { // code } while;', 'A', 3, 1, 0),
+(36, 'What is the function of the modulus operator in C?', 'To perform division', 'To find remainder', 'To find quotient', 'To perform multiplication', 'B', 3, 1, 0),
+(37, 'Which header file is used for dynamic memory allocation in C?', '<stdlib.h>', '<stdio.h>', '<string.h>', '<math.h>', 'A', 3, 1, 0),
+(38, 'What is the output of the following C++ code?', 'C++ is a High Level Language', 'C++ is a compiler', 'C++ is a library', 'C++ is an Object Oriented Programming Language', 'D', 3, 1, 0),
+(39, 'What is the correct syntax for inheritance in C++?', 'class SubClass : public SuperClass', 'class SubClass -> public SuperClass', 'class SubClass :: public SuperClass', 'class SubClass extends SuperClass', 'A', 3, 1, 0),
+(40, 'Which header file should be included to use cout in C++?', '<iostream>', '<stdio.h>', '<conio.h>', '<iostream.h>', 'A', 3, 1, 0),
+(41, 'Which operator is used to dereference a pointer in C++?', '*', '->', '&', '::', 'A', 3, 1, 0),
+(42, 'What is the size of an integer data type in C++?', '2 bytes', '4 bytes', '8 bytes', 'Depends on the compiler', 'B', 3, 1, 0),
+(43, 'What is the output of the following C++ code?', 'No output', 'Syntax error', 'Hello', 'World', 'C', 3, 1, 0),
+(44, 'Which keyword is used to define a function in C++?', 'function', 'define', 'method', 'void', 'D', 3, 1, 0),
+(45, '0', 'Bitwise AND', 'Bitwise OR', 'Right shift', 'Left shift', 'D', 3, 1, 0),
+(46, 'Which data type is used to store single characters in C++?', 'char', 'string', 'int', 'float', 'A', 3, 1, 0),
+(47, 'What is the correct way to initialize an array in C++?', 'int arr[] = {1, 2, 3};', 'array<int> arr = {1, 2, 3};', 'arr[3] = {1, 2, 3};', 'arr<int> = {1, 2, 3};', 'A', 3, 1, 0),
+(48, 'What is the output of cout << 5 / 2; in C++?', '2.5', '2', '2.0', '2.25', 'B', 3, 1, 0),
+(49, 'Which type of loop is used to execute a block of code repeatedly until a specified condition is false in C++?', 'for loop', 'while loop', 'do-while loop', 'if-else loop', 'B', 3, 1, 0),
+(50, 'What is the function of the modulus operator in C++?', 'To perform division', 'To find remainder', 'To find quotient', 'To perform multiplication', 'B', 3, 1, 0);
 
 -- --------------------------------------------------------
 
@@ -311,19 +337,6 @@ CREATE TABLE `semesters` (
 INSERT INTO `semesters` (`semester_id`, `semester_name`) VALUES
 (6, '1st'),
 (7, '2nd');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `student`
---
-
-CREATE TABLE `student` (
-  `student_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `semester_id` int(11) NOT NULL,
-  `batch_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -464,11 +477,20 @@ INSERT INTO `users` (`user_id`, `name`, `email`, `username`, `password`, `is_che
 --
 
 --
+-- Indexes for table `active_sessions`
+--
+ALTER TABLE `active_sessions`
+  ADD PRIMARY KEY (`session_id`);
+
+--
 -- Indexes for table `answers`
 --
 ALTER TABLE `answers`
   ADD PRIMARY KEY (`answer_id`),
-  ADD KEY `question_id` (`question_id`);
+  ADD KEY `answers_ibfk_1` (`question_id`),
+  ADD KEY `exam_id` (`exam_id`),
+  ADD KEY `semester_id` (`semester_id`),
+  ADD KEY `answers_ibfk_4` (`user_id`);
 
 --
 -- Indexes for table `batches`
@@ -481,26 +503,26 @@ ALTER TABLE `batches`
 --
 ALTER TABLE `exams`
   ADD PRIMARY KEY (`exam_id`),
-  ADD KEY `semester_id` (`semester_id`),
-  ADD KEY `subject_id` (`subject_id`),
-  ADD KEY `teacher_id` (`teacher_id`);
+  ADD KEY `exams_ibfk_1` (`semester_id`),
+  ADD KEY `exams_ibfk_2` (`subject_id`),
+  ADD KEY `exams_ibfk_3` (`teacher_id`);
 
 --
 -- Indexes for table `exam_results`
 --
 ALTER TABLE `exam_results`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `exam_id` (`exam_id`),
-  ADD KEY `semester_id` (`semester_id`),
-  ADD KEY `batch_id` (`batch_id`);
+  ADD KEY `exam_results_ibfk_1` (`user_id`),
+  ADD KEY `exam_results_ibfk_2` (`exam_id`),
+  ADD KEY `exam_results_ibfk_3` (`semester_id`),
+  ADD KEY `exam_results_ibfk_4` (`batch_id`);
 
 --
 -- Indexes for table `fill_in_the_blanks`
 --
 ALTER TABLE `fill_in_the_blanks`
   ADD PRIMARY KEY (`question_id`),
-  ADD KEY `exam_id` (`exam_id`);
+  ADD KEY `fill_in_the_blanks_ibfk_1` (`exam_id`);
 
 --
 -- Indexes for table `forgot_password`
@@ -514,14 +536,14 @@ ALTER TABLE `forgot_password`
 --
 ALTER TABLE `multiple_choice_questions`
   ADD PRIMARY KEY (`question_id`),
-  ADD KEY `exam_id` (`exam_id`);
+  ADD KEY `multiple_choice_questions_ibfk_1` (`exam_id`);
 
 --
 -- Indexes for table `questions`
 --
 ALTER TABLE `questions`
   ADD PRIMARY KEY (`question_id`),
-  ADD KEY `exam_id` (`exam_id`);
+  ADD KEY `questions_ibfk_1` (`exam_id`);
 
 --
 -- Indexes for table `roles`
@@ -536,22 +558,13 @@ ALTER TABLE `semesters`
   ADD PRIMARY KEY (`semester_id`);
 
 --
--- Indexes for table `student`
---
-ALTER TABLE `student`
-  ADD PRIMARY KEY (`student_id`),
-  ADD KEY `batch_id` (`batch_id`),
-  ADD KEY `semester_id` (`semester_id`),
-  ADD KEY `user_id` (`user_id`);
-
---
 -- Indexes for table `students`
 --
 ALTER TABLE `students`
   ADD PRIMARY KEY (`student_id`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `batch_id` (`batch_id`),
-  ADD KEY `semester_id` (`semester_id`);
+  ADD KEY `students_ibfk_1` (`user_id`),
+  ADD KEY `students_ibfk_2` (`batch_id`),
+  ADD KEY `students_ibfk_3` (`semester_id`);
 
 --
 -- Indexes for table `subjects`
@@ -573,7 +586,7 @@ ALTER TABLE `teachers`
 --
 ALTER TABLE `true_false_question`
   ADD PRIMARY KEY (`ques_id`),
-  ADD KEY `exam_id` (`exam_id`);
+  ADD KEY `true_false_question_ibfk_1` (`exam_id`);
 
 --
 -- Indexes for table `users`
@@ -582,7 +595,7 @@ ALTER TABLE `users`
   ADD PRIMARY KEY (`user_id`),
   ADD UNIQUE KEY `email` (`email`),
   ADD UNIQUE KEY `username` (`username`),
-  ADD KEY `role_id` (`role_id`);
+  ADD KEY `users_ibfk_1` (`role_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -592,7 +605,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `answers`
 --
 ALTER TABLE `answers`
-  MODIFY `answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `answer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 
 --
 -- AUTO_INCREMENT for table `batches`
@@ -628,7 +641,7 @@ ALTER TABLE `forgot_password`
 -- AUTO_INCREMENT for table `multiple_choice_questions`
 --
 ALTER TABLE `multiple_choice_questions`
-  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `question_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT for table `questions`
@@ -647,12 +660,6 @@ ALTER TABLE `roles`
 --
 ALTER TABLE `semesters`
   MODIFY `semester_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `student`
---
-ALTER TABLE `student`
-  MODIFY `student_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `students`
@@ -692,30 +699,33 @@ ALTER TABLE `users`
 -- Constraints for table `answers`
 --
 ALTER TABLE `answers`
-  ADD CONSTRAINT `answers_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES `questions` (`question_id`);
+  ADD CONSTRAINT `answers_ibfk_1` FOREIGN KEY (`question_id`) REFERENCES `questions` (`question_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `answers_ibfk_2` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `answers_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `answers_ibfk_4` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `exams`
 --
 ALTER TABLE `exams`
-  ADD CONSTRAINT `exams_ibfk_1` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`),
-  ADD CONSTRAINT `exams_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`subject_id`),
-  ADD CONSTRAINT `exams_ibfk_3` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`teacher_id`);
+  ADD CONSTRAINT `exams_ibfk_1` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `exams_ibfk_2` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`subject_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `exams_ibfk_3` FOREIGN KEY (`teacher_id`) REFERENCES `teachers` (`teacher_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `exam_results`
 --
 ALTER TABLE `exam_results`
-  ADD CONSTRAINT `exam_results_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `exam_results_ibfk_2` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`),
-  ADD CONSTRAINT `exam_results_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`),
-  ADD CONSTRAINT `exam_results_ibfk_4` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`batch_id`);
+  ADD CONSTRAINT `exam_results_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `exam_results_ibfk_2` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `exam_results_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `exam_results_ibfk_4` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`batch_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `fill_in_the_blanks`
 --
 ALTER TABLE `fill_in_the_blanks`
-  ADD CONSTRAINT `fill_in_the_blanks_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`);
+  ADD CONSTRAINT `fill_in_the_blanks_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `forgot_password`
@@ -727,29 +737,21 @@ ALTER TABLE `forgot_password`
 -- Constraints for table `multiple_choice_questions`
 --
 ALTER TABLE `multiple_choice_questions`
-  ADD CONSTRAINT `multiple_choice_questions_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`);
+  ADD CONSTRAINT `multiple_choice_questions_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `questions`
 --
 ALTER TABLE `questions`
-  ADD CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`);
-
---
--- Constraints for table `student`
---
-ALTER TABLE `student`
-  ADD CONSTRAINT `student_ibfk_1` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`batch_id`),
-  ADD CONSTRAINT `student_ibfk_2` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`),
-  ADD CONSTRAINT `student_ibfk_3` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `questions_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `students`
 --
 ALTER TABLE `students`
-  ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
-  ADD CONSTRAINT `students_ibfk_2` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`batch_id`),
-  ADD CONSTRAINT `students_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`);
+  ADD CONSTRAINT `students_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `students_ibfk_2` FOREIGN KEY (`batch_id`) REFERENCES `batches` (`batch_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `students_ibfk_3` FOREIGN KEY (`semester_id`) REFERENCES `semesters` (`semester_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `subjects`
@@ -768,13 +770,13 @@ ALTER TABLE `teachers`
 -- Constraints for table `true_false_question`
 --
 ALTER TABLE `true_false_question`
-  ADD CONSTRAINT `true_false_question_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`);
+  ADD CONSTRAINT `true_false_question_ibfk_1` FOREIGN KEY (`exam_id`) REFERENCES `exams` (`exam_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `users`
 --
 ALTER TABLE `users`
-  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`);
+  ADD CONSTRAINT `users_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `roles` (`role_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
