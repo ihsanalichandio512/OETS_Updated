@@ -110,7 +110,7 @@ togglePassword.addEventListener('click', function () {
     $password = $_POST['password'];
 
     // Retrieve user data from the database
-    $sql = "SELECT user_id, username, role_id, password, status FROM users WHERE username = ?";
+    $sql = "SELECT user_id, username, role_id, password, FROM users WHERE username = ?";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("s", $username);
     $stmt->execute();
