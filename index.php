@@ -105,76 +105,146 @@ togglePassword.addEventListener('click', function () {
             </form>
 
             <?php
-            if(isset($_POST['login'])){
-                $username = $_POST['username'];
-                $password = $_POST['password'];
+            if (isset($_POST['login'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-                $sql = "SELECT users.user_id, users.username, users.role_id, users.password 
-                FROM users where users.username = '$username';
-                ";
-                $getSemester = "SELECT semesters.semester_id FROM semesters";
-                $result = mysqli_query($conn, $sql) or die("Query Failed");
-                $getSemesterResult = mysqli_query($conn,$getSemester);
-                $getSemester_id =mysqli_fetch_array($getSemesterResult);
-                if(mysqli_num_rows($result) > 0) {
-                $row = mysqli_fetch_assoc($result);
-                $hashed_password = $row['password'];
+    // Retrieve user data from the database
+    $sql = "SELECT user_id, username, role_id, password, status FROM users WHERE username = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
-                // Verify the password
-                if(password_verify($password, $hashed_password)) {
-                // Set session variables and redirect to the dashboard
-                    $_SESSION['username'] = $row['username'];
-                    $_SESSION['user_id'] = $row['user_id'];
-                    $_SESSION['role_id'] = $row['role_id'];
-                    $_SESSION['semester_id'] = $getSemester_id['semester_id'];
-                    mysqli_free_result($result);
-                    // header("location: admin_dashboard.php");
-                    if($_SESSION['role_id']== 4){
-                    ?>
-                        <script>
-                            window.location.href = "./Admin/admin.php";
-                        </script>
-                    <?php
-                    }else if($_SESSION['role_id']==3){
-                        ?>
-                        <script>
-                            window.location.href = "./Teacher/teacher.php";
-                        </script>
-                    <?php
-                    }else if($_SESSION['role_id']==1){
-                        ?>
-                        <script>
-                            window.location.href = "./Student/student.php";
-                        </script>
-                    <?php
-                    }
-                    else{
-                        ?>
-                        <script>
-                            <div class="alert alert-danger">Role Is not defined</div>
-                        </script>
-                    <?php
-                    }
-                    exit(); // Ensure no further code execution after redirection
-                } else {
-                    // Display error message if password is incorrect
-                    ?>
-                    <script>
-                        document.getElementById('fail').style.display = 'block';
-                    </script>
-                    <?php
-                }
-            } else {
-                // Display error message if user is not found
+    if ($result->num_rows == 1) {
+        $row = $result->fetch_assoc();
+        $hashed_password = $row['password'];
+
+        // Verify the password
+        if (password_verify($password, $hashed_password)) {
+            // Check if the user is already logged in
+            $existing_session_id = fetchSessionId($conn, $row['user_id']);
+            if ($existing_session_id) {
+                // User is already logged in from another session
+                // echo "User is already logged in from another session.";
                 ?>
-                    <script>
-                        document.getElementById('fail').style.display = 'block';
-                    </script>
-                    <?php
+                <div
+                    class="alert alert-danger alert-dismissible fade show"
+                    role="alert"
+                >
+                    <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="alert"
+                        aria-label="Close"
+                    ></button>
+                
+                    <strong>This user</strong> Is Already On Another Session
+                </div>
+                <?php
+                exit();
             }
-            }  
-        
+
+            // Set session variables
+            $_SESSION['username'] = $row['username'];
+            $_SESSION['user_id'] = $row['user_id'];
+            $_SESSION['role_id'] = $row['role_id'];
+            $_SESSION['status'] = $row['status'];
+
+            // Store session ID in the database
+            storeSessionId($conn, session_id(), $row['user_id']);
+
+            // Redirect user based on role
+            redirectToDashboard($row['role_id']);
+            exit();
+        } else {
+            // Password is incorrect
             ?>
+            <div
+                class="alert alert-danger alert-dismissible fade show"
+                role="alert"
+            >
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                ></button>
+            
+                <strong>Password</strong> Is invalid
+            </div>
+            <?php
+            exit();
+        }
+    } else {
+        // User not found
+        ?>
+            <div
+                class="alert alert-danger alert-dismissible fade show"
+                role="alert"
+            >
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert"
+                    aria-label="Close"
+                ></button>
+            
+                <strong>Username</strong> Is invalid
+            </div>
+            <?php
+        exit();
+    }
+}
+
+function fetchSessionId($conn, $user_id) {
+    $sql = "SELECT session_id FROM active_sessions WHERE user_id = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($result->num_rows == 1) {
+        $row = $result->fetch_assoc();
+        return $row['session_id'];
+    }
+    return false;
+}
+
+// function storeSessionId($conn, $session_id, $user_id) {
+//     $sql = "INSERT INTO active_sessions (session_id, user_id) VALUES (?, ?)";
+//     $stmt = $conn->prepare($sql);
+//     $stmt->bind_param("si", $session_id, $user_id);
+//     $stmt->execute();
+// }
+function storeSessionId($conn, $session_id, $user_id) {
+    $sql = "INSERT INTO active_sessions (session_id, user_id) VALUES (?, ?)
+             ON DUPLICATE KEY UPDATE session_id = VALUES(session_id)";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("si", $session_id, $user_id);
+    $stmt->execute();
+  }
+function redirectToDashboard($role_id) {
+    switch ($role_id) {
+        case 1:
+            // header("Location: ./Student/student.php");
+            echo "<script>window.location.href = './Student/student.php';</script>";
+            break;
+        case 3:
+            // header("Location: ./Teacher/teacher.php");
+            echo "<script>window.location.href = './Teacher/teacher.php';</script>";
+
+            break;
+        case 4:
+            // header("Location: ./Admin/admin.php");
+            echo "<script>window.location.href = './Admin/admin.php';</script>";
+
+            break;
+        default:
+            echo "Role not defined.";
+            break;
+    }
+}
+?>
             </div>
     </div>
 </div>
@@ -193,5 +263,3 @@ togglePassword.addEventListener('click', function () {
     <!-- Template Javascript -->
     <script src="./js/main.js"></script>
 </body>
-
-</html>
