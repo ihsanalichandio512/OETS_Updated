@@ -9,7 +9,12 @@ if ($_SESSION['role_id'] == 3) {
     if (!$_SESSION['username']) {
         header("location:../index.php");
     }
-    $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
+    $getExamCheck = "SELECT *,
+    TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
+FROM `exams`
+WHERE exams.exam_status = 'active'
+AND DATE(start_datetime) = CURDATE()
+";
                     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
                     $setuser = mysqli_query($conn,$isCheated);
                     $set = mysqli_query($conn,$getExamCheck);

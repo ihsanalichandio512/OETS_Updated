@@ -9,12 +9,27 @@ if ($_SESSION['role_id'] == 4) {
     if (!$_SESSION['username']) {
         header("location:../index.php");
     }
+
+    
+    $getExam_id = "SELECT exams.exam_id FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id";
+    $exam_id_query = mysqli_query($conn,$getExam_id);
+    $get_exam_id_as = mysqli_fetch_array($exam_id_query);
+    $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
+    
+    
+    // $getExam_Type = "SELECT exams.exam_type from exams where exams.semester_id = '$getUserSemester AND exams.exam_id = '$GET_ID_OF_EXAM''";
+    // $getExam_type_data = mysqli_query($conn,$getExam_Type);
+    // $queryyy = mysqli_fetch_array($getExam_type_data);
+
+    // $time = "SELECT exams.exam_duration_minutes,exams.exam_id,exams.semester_id FROM exams WHERE exams.semester_id = '$getUserSemester' AND exams.exam_id = '$get#
+    // '";
+
     $getExamCheck = "SELECT *,
     TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
 FROM `exams`
 WHERE exams.exam_status = 'active'
-AND start_datetime = CURDATE()
-OR DATEDIFF(start_datetime, CURDATE()) = 1";
+AND DATE(start_datetime) = CURDATE()
+";
     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
     $setuser = mysqli_query($conn, $isCheated);
     $set = mysqli_query($conn, $getExamCheck);
@@ -104,16 +119,8 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
                     <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
                         <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
-                                <h3 class="text-center">Fill In the Blanks</h3>
-
-
-
+                                <h3 class="text-center">Fill In the Blanks </h3>
                                 <?php
-                                $getExam_id = "SELECT exams.exam_id FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id";
-                                $exam_id_query = mysqli_query($conn,$getExam_id);
-                                $get_exam_id_as = mysqli_fetch_array($exam_id_query);
-                                $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
-
                                 $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 10";
                                 $query = mysqli_query($conn, $get_fill_in_the_blanks);
                                 $count = 1;
@@ -145,7 +152,6 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
                                                 $answer = $_POST[$key];
                                                 $getUser_id = $_SESSION['user_id'];
                                                 $getUserSemester = $_SESSION['semester_id'];
-                                                
                                                 $insert_query = "
                                                 INSERT INTO answers( question_id, user_id, semester_id,exam_id, answer_text) VALUES ('$question_id','$getUser_id','$getUserSemester','$GET_ID_OF_EXAM','$answer')
                                                 ";

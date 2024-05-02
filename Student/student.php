@@ -66,9 +66,9 @@ if ($_SESSION['role_id'] == 3) {
                         // $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
                         $getExamCheck = "SELECT *,
                         TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
-                    FROM exams
+                    FROM `exams`
                     WHERE exams.exam_status = 'active'
-                    AND (start_datetime = CURDATE() OR DATE(start_datetime) = DATE_ADD(CURDATE(), INTERVAL 1 DAY))
+                    AND DATE(start_datetime) = CURDATE()
                     ";
                         $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
                         

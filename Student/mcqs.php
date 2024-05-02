@@ -9,12 +9,13 @@ if ($_SESSION['role_id'] == 4) {
     if (!$_SESSION['username']) {
         header("location:../index.php");
     }
+
     $getExamCheck = "SELECT *,
     TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
 FROM `exams`
 WHERE exams.exam_status = 'active'
-AND start_datetime = CURDATE()
-OR DATEDIFF(start_datetime, CURDATE()) = 1";
+AND DATE(start_datetime) = CURDATE()
+";
     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
     $setuser = mysqli_query($conn, $isCheated);
     $set = mysqli_query($conn, $getExamCheck);
@@ -103,50 +104,10 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
 
                                 <h3 class="text-center">MCQS</h3>
-                                <?php
-                                if (isset($_POST['submit'])) {
-                                    // Loop through each POST variable
-                                    foreach ($_POST as $key => $value) {
-                                        // Check if the POST variable represents an answer
-                                        if (strpos($key, 'answer_') !== false) {
-                                            // Extract question ID from the POST variable
-                                            $question_id = substr($key, strlen('answer_'));
-
-                                            // Get the selected option from the POST data
-                                            $selected_option = $_POST[$key];
-                                            $getUser_id = $_SESSION['user_id'];
-                                                $getUserSemester = $_SESSION['semester_id'];
-                                            // Insert the answer into the answers table
-                                            // $insert_answer_query = "INSERT INTO answers ( question_id, user_id, semester_id,exam_id, answer_text) VALUES ('$question_id','$getUser_id','$getUserSemester','$selected_option')";
-                                            $insert_answer_query = "INSERT INTO answers ( question_id, user_id, semester_id,exam_id, answer_text) VALUES ('$question_id','$getUser_id','$getUserSemester','$selected_option')";
-                                            echo $insert_answer_query;
-                                            die();
-                                            // $insert_answer_query = "INSERT INTO answers (question_id, selected_option) VALUES ('$question_id', '$selected_option')";
-
-                                            mysqli_query($conn, $insert_answer_query);
-
-                                            // Optionally, you can also check the answer against the correct option
-                                            // and update the exam_result table accordingly
-
-                                            // For example:
-                                            // Check if the selected option is correct
-                                            // $check_correct_query = "SELECT correct_option FROM multiple_choice_questions WHERE question_id = '$question_id'";
-                                            // $correct_option_result = mysqli_query($conn, $check_correct_query);
-                                            // $correct_option_row = mysqli_fetch_assoc($correct_option_result);
-                                            // $correct_option = $correct_option_row['correct_option'];
-                                            // $is_correct = ($selected_option == $correct_option) ? 1 : 0;
-
-                                            // // Update the exam_result table
-                                            // $update_exam_result_query = "UPDATE exam_result SET mcq_score = mcq_score + $is_correct WHERE question_id = '$question_id'";
-                                            // mysqli_query($conn, $update_exam_result_query);
-                                        }
-                                    }
-                                }
-                                ?>
                                 <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                                     <?php
-                                    $getExam_id = "SELECT exams.exam_id FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id";
-                                    $exam_id_query = mysqli_query($conn,$getExam_id);
+                                    $getExam_id = "SELECT exams.exam_id FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id";
+                                    $exam_id_query = mysqli_query($conn, $getExam_id);
                                     $get_exam_id_as = mysqli_fetch_array($exam_id_query);
                                     $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
                                     // Retrieve and display MCQs questions and options
@@ -182,6 +143,7 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
                                                     <label class="form-check-label" for="flexRadioDefault4">
                                                         <?php echo $row['option_d'] ?>
                                                     </label>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -191,6 +153,44 @@ OR DATEDIFF(start_datetime, CURDATE()) = 1";
 
                                     <button type="submit" name="submit" class="btn btn-primary py-3 w-100 mb-4">Submit</button>
                                 </form>
+                                <?php
+                                if (isset($_POST['submit'])) {
+
+                                    $getExam_id = "SELECT exams.exam_id FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id";
+                                    $exam_id_query = mysqli_query($conn, $getExam_id);
+                                    $get_exam_id_as = mysqli_fetch_array($exam_id_query);
+                                    $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
+                                    $user_id = $_SESSION['user_id'];
+                                    $getSemester_id = $_SESSION['semester_id'];
+
+                                    $multiple_choice_questions = "SELECT * from multiple_choice_questions WHERE exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND() limit 10";
+
+                                    $query = mysqli_query($conn, $multiple_choice_questions);
+
+                                    foreach ($_POST as $key => $value) {
+                                        if (strpos($key, 'answer_') !== false) {
+                                            $question_id = substr($key, strlen('answer_'));
+                                            $answer = $_POST[$key];
+
+                                            $sql = "SELECT * FROM multiple_choice_questions WHERE exam_id = '$GET_ID_OF_EXAM' AND question_id = '$question_id'";
+                                            $result = mysqli_query($conn, $sql);
+                                            $row = mysqli_fetch_assoc($result);
+                                            $get = $row['question_text'];
+                                            $Insert = "INSERT INTO answers (question_id, user_id, exam_id, selected_option) VALUES ('$question_id', '$user_id', '$GET_ID_OF_EXAM', '$answer')";
+
+                                            // echo $Insert."<br>";
+                                            // die();
+                                            $inserAns = mysqli_query($conn, $Insert);
+
+                                            if ($inserAns) {
+                                                echo "Success" . "<br>";
+                                            } else {
+                                                echo "Unsuccess" . "<br>";
+                                            }
+                                        }
+                                    }
+                                }
+                                ?>
 
                             </div>
                         </div>

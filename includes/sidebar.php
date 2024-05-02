@@ -65,32 +65,32 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role_id'])) {
             <?php
             } else if ($_SESSION['role_id'] == 1) {
             ?>
-                
-                <?php
-                        // $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
-                        $getExamCheck = "SELECT *,
-                    TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
-             FROM `exams`
-             WHERE exams.exam_status = 'active'
-             AND start_datetime = CURDATE()
-             OR DATEDIFF(start_datetime, CURDATE()) = 1";
-                        $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
 
-                        $setuser = mysqli_query($conn, $isCheated);
-                        $set = mysqli_query($conn, $getExamCheck);
-                        $row = mysqli_fetch_array($set);
-
-                        if (mysqli_num_rows($set) && mysqli_num_rows($setuser) > 0) {
-                        ?>
-                        <a href="../Student/give_exam.php" class="nav-item nav-link">Give Exam</a>
                 <?php
-                        }else{
-                            ?>
-                        <a href="" class="nav-item nav-link disabled">Exam Will Be Soon</a>
-                    <?php    
-                    }
+                // $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
+                $getExamCheck = "SELECT *,
+    TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
+FROM `exams`
+WHERE exams.exam_status = 'active'
+AND DATE(start_datetime) = CURDATE()
+";
+                $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
+
+                $setuser = mysqli_query($conn, $isCheated);
+                $set = mysqli_query($conn, $getExamCheck);
+                $row = mysqli_fetch_array($set);
+
+                if (mysqli_num_rows($set) && mysqli_num_rows($setuser) > 0) {
                 ?>
-                
+                    <a href="../Student/give_exam.php" class="nav-item nav-link">Give Exam</a>
+                <?php
+                } else {
+                ?>
+                    <a href="" class="nav-item nav-link disabled">Exam Will Be Soon</a>
+                <?php
+                }
+                ?>
+
                 <?php
                 $getUser_id = $_SESSION['user_id'];
                 $sql = "SELECT * From exam_results WHERE exam_results.user_id = '$getUser_id'";
