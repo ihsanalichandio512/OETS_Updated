@@ -112,11 +112,24 @@ if (isset($_SESSION['user_id']) && isset($_SESSION['role_id'])) {
 
                 <?php
                 $getUser_id = $_SESSION['user_id'];
-                $sql = "SELECT * From exam_results WHERE exam_results.user_id = '$getUser_id'";
+                $sql ="
+                        SELECT users.*
+                        FROM users
+                        WHERE users.user_id = '$getUser_id'
+                        AND (
+                            (SELECT COUNT(*) FROM true_false_question WHERE true_false_question.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            AND
+                            (SELECT COUNT(*) FROM multiple_choice_questions WHERE multiple_choice_questions.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            AND
+                            (SELECT COUNT(*) FROM fill_in_the_blanks WHERE fill_in_the_blanks.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            AND
+                            (SELECT COUNT(*) FROM questions WHERE questions.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                        );
+                ";
                 $settt = mysqli_query($conn, $sql);
                 if (mysqli_num_rows($settt) > 0) {
                 ?>
-                    <a href="" class="nav-item nav-link">Get Result</a>
+                    <a href="../Student/result.php" class="nav-item nav-link">Get Result</a>
 
                 <?php
                 } else {

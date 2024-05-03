@@ -220,7 +220,9 @@ WHERE exams.exam_status = 'active'
                                                     <script>
                                                         clearInterval(timerInterval);
                                                     </script>
+                                                    
                                                 <?php
+                                                header("location:give_exam.php");
                                                 } else {
                                                     echo "Unsuccess";
                                                 }

@@ -256,9 +256,10 @@ WHERE exams.exam_status = 'active'
                                                 $upadted = mysqli_query($conn, $update);
                                                 ?>
                                                 <script>
-                                                    // clearInterval(timerInterval);
+                                                    clearInterval(timerInterval);
                                                 </script>
                                                 <?php
+                                                header("location:give_exam.php");
                                             } else {
                                                 echo "Unsuccess";
                                             }

@@ -227,6 +227,12 @@ WHERE exams.exam_status = 'active'
                                                         echo "success";
                                                         $update = "UPDATE `true_false_question` SET is_completed = 'completed' WHERE true_false_question.exam_id = '$GET_ID_OF_EXAM'";
                                                         $upadted = mysqli_query($conn, $update);
+                                                        ?>
+                                                <script>
+                                                    clearInterval(timerInterval);
+                                                </script>
+                                                <?php
+                                                        header("location:give_exam.php");
     
                                                     } else {
                                                         echo "Unsuccess";

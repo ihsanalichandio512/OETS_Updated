@@ -133,45 +133,38 @@ WHERE exams.exam_status = 'active'
                 $hours = $counter * 3600;
                 ?>
                 <script>
-                    window.onload = function() {
-                        var duration = <?php echo $hours; ?>; // Duration of the exam in seconds
-                        var timerDisplay = document.getElementById('timer');
-                        var startTime = localStorage.getItem('startTime');
-                        var storedDuration = localStorage.getItem('duration');
-                        
-                        if (startTime && storedDuration) {
-                            // Calculate the remaining time based on the stored start time and duration
-                            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
-                            duration = storedDuration - elapsedTime;
-                            if (duration < 0) {
-                                duration = 0;
-                            }
-                        } else {
-                            // Store the start time and duration in localStorage
-                            localStorage.setItem('startTime', new Date().getTime());
-                            localStorage.setItem('duration', duration);
-                        }
-                        
-                        function updateTimer() {
-                            var hours = Math.floor(duration / 3600);
-                            var minutes = Math.floor((duration % 3600) / 60);
-                            var seconds = duration % 60;
-                            
-                            timerDisplay.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+                   window.onload = function() {
+        var duration = <?php echo $hours; ?>; // Duration of the exam in seconds
+        var timerDisplay = document.getElementById('timer');
+        var startTime = localStorage.getItem('startTime');
+        var storedDuration = localStorage.getItem('duration');
 
-                            if (duration <= 0) {
-                                clearInterval(timerInterval); // Stop the timer
-                                // Auto-submit the exam by submitting the form
-                                document.getElementById('examForm').submit();
-                              
-                            }
+        if (!startTime || !storedDuration) {
+            // If start time or stored duration is not available, reset the timer
+            localStorage.setItem('startTime', new Date().getTime());
+            localStorage.setItem('duration', duration);
+        }
 
-                            duration--; // Decrement the duration
-                        }
+        function updateTimer() {
+            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+            duration = storedDuration - elapsedTime;
 
-                        // Update the timer every second
-                        var timerInterval = setInterval(updateTimer, 1000);
-                    };
+            if (duration <= 0) {
+                clearInterval(timerInterval); // Stop the timer
+                // Auto-submit the exam by submitting the form
+                document.getElementById('examForm').submit();
+            }
+
+            var hours = Math.floor(duration / 3600);
+            var minutes = Math.floor((duration % 3600) / 60);
+            var seconds = duration % 60;
+
+            timerDisplay.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+        }
+
+        // Update the timer every second
+        var timerInterval = setInterval(updateTimer, 1000);
+    };
                 </script>
                     <!-- Spinner Start -->
                 <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
@@ -233,6 +226,7 @@ WHERE exams.exam_status = 'active'
                                                         clearInterval(timerInterval);
                                                     </script>
                                                 <?php
+                                                header("location:give_exam.php");
                                                 } else {
                                                     echo "Unsuccess";
                                                 }

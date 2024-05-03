@@ -90,7 +90,7 @@ if ($_SESSION['role_id'] == 3) {
                     
                     ";
                         $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
-                        
+
                         $setuser = mysqli_query($conn, $isCheated);
                         $set = mysqli_query($conn, $getExamCheck);
                         $row = mysqli_fetch_array($set);
@@ -124,7 +124,21 @@ if ($_SESSION['role_id'] == 3) {
 
                         <?php
                         $getUser_id = $_SESSION['user_id'];
-                        $sql = "SELECT * From exam_results WHERE exam_results.user_id = '$getUser_id'";
+                        $sql = "
+                        SELECT users.*
+                        FROM users
+                        WHERE users.user_id = '$getUser_id'
+                        AND (
+                            (SELECT COUNT(*) FROM true_false_question WHERE true_false_question.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            AND
+                            (SELECT COUNT(*) FROM multiple_choice_questions WHERE multiple_choice_questions.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            AND
+                            (SELECT COUNT(*) FROM fill_in_the_blanks WHERE fill_in_the_blanks.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            AND
+                            (SELECT COUNT(*) FROM questions WHERE questions.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                        );
+
+                        ";
                         $settt = mysqli_query($conn, $sql);
                         if (mysqli_num_rows($settt) > 0) {
                         ?>
@@ -132,15 +146,15 @@ if ($_SESSION['role_id'] == 3) {
                                 <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
                                     <div class="ms-3">
                                         <p class="mb-2">Get Result</p>
-                                        <a href="" class="mb-0"><input type="button" class="btn btn-primary " value="Get Result"></a>
+                                        <a href="./result.php" class="mb-0"><input type="button" class="btn btn-primary " value="Get Result"></a>
                                     </div>
                                 </div>
                             </div>
 
                         <?php
-                        }else{
-                            ?>
-                        <div class="col-sm-7 col-xl-5">
+                        } else {
+                        ?>
+                            <div class="col-sm-7 col-xl-5">
                                 <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
                                     <div class="ms-3">
                                         <p class="mb-1">Complete Exams To Get Result</p>
@@ -148,7 +162,7 @@ if ($_SESSION['role_id'] == 3) {
                                     </div>
                                 </div>
                             </div>
-                            <?php
+                        <?php
                         }
                         ?>
                         <?php
