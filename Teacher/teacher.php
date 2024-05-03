@@ -98,12 +98,21 @@ if($_SESSION['role_id']==1){
                         <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
                             <div class="ms-3">
                                 <p class="mb-2">Start Exam</p>
-                                <a href="../Teacher/start_exam.php" class="mb-0"><input type="button" class="btn btn-primary " value="Start Exam"></a>
+                                <a href="./Teacher/start_exam.php" class="mb-0"><input type="button" class="btn btn-primary " value="Start Exam"></a>
                             </div>
                         </div>
                     </div>
 
-                </div    v>
+                    <div class="col-sm-6 col-xl-3">
+                        <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
+                            <div class="ms-3">
+                                <p class="mb-2">Show Long Answers</p>
+                                <a href="./show_long_answers.php" class="mb-0"><input type="button" class="btn btn-primary " value="Start Exam"></a>
+                            </div>
+                        </div>
+                    </div>
+
+</div> 
             </div>
             <!-- cards code ends here -->
         </div>

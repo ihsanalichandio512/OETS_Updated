@@ -9,11 +9,30 @@ if ($_SESSION['role_id'] == 3) {
     if (!$_SESSION['username']) {
         header("location:../index.php");
     }
-    $getExamCheck = "SELECT *,
-    TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
-FROM `exams`
+    $getExamCheck = "SELECT exams.*,
+    TIMESTAMPDIFF(DAY, CURDATE(), exams.start_datetime) AS days_until_start
+FROM exams
+INNER JOIN (
+    SELECT exam_id
+    FROM true_false_question
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM multiple_choice_questions
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM questions
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM fill_in_the_blanks
+    WHERE is_completed = 'not_completed'
+) AS incomplete_exams
+ON exams.exam_id = incomplete_exams.exam_id
 WHERE exams.exam_status = 'active'
-AND DATE(start_datetime) = CURDATE()
+    AND DATE(exams.start_datetime) = CURDATE();
+
 ";
                     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
                     $setuser = mysqli_query($conn,$isCheated);
@@ -86,7 +105,7 @@ AND DATE(start_datetime) = CURDATE()
                                     }
                                     ?>
                                     <?php
-                                    $sql = "SELECT multiple_choice_questions.* , exams.* FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = multiple_choice_questions.exam_id";
+                                    $sql = "SELECT multiple_choice_questions.* , exams.* FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = multiple_choice_questions.exam_id AND multiple_choice_questions.is_completed = 'not_completed' ";
                                     $query = mysqli_query($conn, $sql);
                                     if(mysqli_num_rows($query)>0){
                                         ?>
@@ -100,7 +119,7 @@ AND DATE(start_datetime) = CURDATE()
                                     ?>
 
 <?php
-                                    $sql = "SELECT questions.* , exams.* FROM questions INNER JOIN exams ON questions.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = questions.exam_id";
+                                    $sql = "SELECT questions.* , exams.* FROM questions INNER JOIN exams ON questions.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = questions.exam_id AND questions.is_completed = 'not_completed'";
                                     $query = mysqli_query($conn, $sql);
                                     if(mysqli_num_rows($query)>0){
                                         ?>
@@ -113,7 +132,7 @@ AND DATE(start_datetime) = CURDATE()
                                     }
                                     ?>
 <?php
-                                    $sql = "SELECT true_false_question.* , exams.* FROM true_false_question INNER JOIN exams ON true_false_question.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = true_false_question.exam_id";
+                                    $sql = "SELECT true_false_question.* , exams.* FROM true_false_question INNER JOIN exams ON true_false_question.exam_id = exams.exam_id WHERE exams.exam_status = 'active' AND exams.exam_id = true_false_question.exam_id AND true_false_question.is_completed = 'not_completed'";
                                     $query = mysqli_query($conn, $sql);
                                     if(mysqli_num_rows($query)>0){
                                         ?>

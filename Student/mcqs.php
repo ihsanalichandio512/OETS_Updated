@@ -10,15 +10,42 @@ if ($_SESSION['role_id'] == 4) {
         header("location:../index.php");
     }
 
-    $getExamCheck = "SELECT *,
-    TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
-FROM `exams`
+
+    $getExam_id = "SELECT exams.exam_id FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id";
+    $gettt = mysqli_query($conn,$getExam_id);
+    $get_exam_id_as = mysqli_fetch_array($gettt);
+    $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
+
+    $getExamCheck = "SELECT exams.*,
+    TIMESTAMPDIFF(DAY, CURDATE(), exams.start_datetime) AS days_until_start
+FROM exams
+INNER JOIN (
+    SELECT exam_id
+    FROM true_false_question
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM multiple_choice_questions
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM questions
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM fill_in_the_blanks
+    WHERE is_completed = 'not_completed'
+) AS incomplete_exams
+ON exams.exam_id = incomplete_exams.exam_id
 WHERE exams.exam_status = 'active'
-AND DATE(start_datetime) = CURDATE()
+    AND DATE(exams.start_datetime) = CURDATE();
+
 ";
     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
     $setuser = mysqli_query($conn, $isCheated);
     $set = mysqli_query($conn, $getExamCheck);
+    $get_exam_details = mysqli_fetch_array($set);
+    $get_student_details = mysqli_fetch_array($setuser);
     if (mysqli_num_rows($set) && mysqli_num_rows($setuser) > 0) {
 ?>
 
@@ -52,6 +79,7 @@ AND DATE(start_datetime) = CURDATE()
 
             <!-- Template Stylesheet -->
             <link href="../css/style.css" rel="stylesheet">
+
             <!-- code for disable copy cut paste right click and selection -->
             <!-- <script>
                 // Disable copy-paste
@@ -89,6 +117,62 @@ AND DATE(start_datetime) = CURDATE()
 
         <body>
             <div class="container-xxl position-relative bg-white d-flex p-0">
+                <?php
+                $get_exam_duration_query = "SELECT exam_duration_minutes FROM exams WHERE exam_id = '$GET_ID_OF_EXAM'"; // Assuming you have an exam_id available
+                $getTime = mysqli_query($conn, $get_exam_duration_query);
+                $getTimer = mysqli_fetch_array($getTime);
+                $counter = $getTimer['exam_duration_minutes'];
+                // $hours = $counter * 3600;
+
+               ?>
+                <script>
+                    window.onload = function() {
+                        var duration_hours = <?php echo $counter; ?>; // Duration of the exam in seconds
+                        var duration_seconds = duration_hours * 3600; // Convert hours to seconds
+                        var timerDisplay = document.getElementById('timer');
+
+                        var startTime = localStorage.getItem('startTime');
+                        var storedDuration = localStorage.getItem('duration');
+
+                        if (startTime && storedDuration) {
+                            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+                            duration_seconds = storedDuration - elapsedTime;
+                            if (duration_seconds < 0) {
+                                duration_seconds = 0;
+                            }
+                        } else {
+                            // Store the start time and duration in local storage
+                            localStorage.setItem('startTime', new Date().getTime());
+                            localStorage.setItem('duration', duration_seconds);
+                        }
+
+                        function updateTimer() {
+                            var hours = Math.floor(duration_seconds / 3600);
+                            var minutes = Math.floor((duration_seconds % 3600) / 60);
+                            var seconds = duration_seconds % 60;
+
+                            timerDisplay.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+
+                            if (duration_seconds <= 0) {
+                                clearInterval(timerInterval); // Stop the timer
+                                // Auto-submit the exam by submitting the form or any other action
+                                // document.getElementById('examForm').submit(); // Replace 'examForm' with your form ID
+                            }
+
+                            duration_seconds--; // Decrement the duration
+
+                            // Update local storage with current start time and remaining duration
+                            localStorage.setItem('startTime', new Date().getTime());
+                            localStorage.setItem('duration', duration_seconds);
+                        }
+
+                        // Update the timer every second
+                        var timerInterval = setInterval(updateTimer, 1000);
+
+                        
+                    };
+                </script>
+
                 <!-- Spinner Start -->
                 <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -101,95 +185,87 @@ AND DATE(start_datetime) = CURDATE()
                 <div class="container-fluid">
                     <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
                         <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                            <div id="timer" class="h2 text-center"></div>
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
-
                                 <h3 class="text-center">MCQS</h3>
-                                <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                                <?php
+                                $multiple_choice_questions = "SELECT * FROM multiple_choice_questions WHERE multiple_choice_questions.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 10";
+                                $query = mysqli_query($conn, $multiple_choice_questions);
+                                $count = 1;
+                            
+?>
+                                <form method="post" id="examForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                                     <?php
-                                    $getExam_id = "SELECT exams.exam_id FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id";
-                                    $exam_id_query = mysqli_query($conn, $getExam_id);
-                                    $get_exam_id_as = mysqli_fetch_array($exam_id_query);
-                                    $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
-                                    // Retrieve and display MCQs questions and options
-                                    $multiple_choice_questions = "SELECT * from multiple_choice_questions WHERE exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND() limit 10";
-                                    $query = mysqli_query($conn, $multiple_choice_questions);
-                                    $count = 1;
-
                                     while ($row = mysqli_fetch_assoc($query)) {
+                                        $question_id = $row['question_id'];
                                     ?>
                                         <label for="" class="col-sm-12 col-form-label"><?php echo $count++ . ". " . $row['question_text'] ?></label>
                                         <div class="row mb-3">
                                             <div class="col-sm-12">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" value="A" type="radio" name="answer_<?php echo $row['question_id']; ?>" id="flexRadioDefault1">
+                                                    <input class="form-check-input" value="A" type="radio" name="answer_<?php echo $question_id; ?>" id="flexRadioDefault1">
                                                     <label class="form-check-label" for="flexRadioDefault1">
                                                         <?php echo $row['option_a'] ?>
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" value="B" type="radio" name="answer_<?php echo $row['question_id']; ?>" id="flexRadioDefault2">
+                                                    <input class="form-check-input" value="B" type="radio" name="answer_<?php echo $question_id; ?>" id="flexRadioDefault2">
                                                     <label class="form-check-label" for="flexRadioDefault2">
                                                         <?php echo $row['option_b'] ?>
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" value="C" type="radio" name="answer_<?php echo $row['question_id']; ?>" id="flexRadioDefault3">
+                                                    <input class="form-check-input" value="C" type="radio" name="answer_<?php echo $question_id; ?>" id="flexRadioDefault3">
                                                     <label class="form-check-label" for="flexRadioDefault3">
                                                         <?php echo $row['option_c'] ?>
                                                     </label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" value="D" type="radio" name="answer_<?php echo $row['question_id']; ?>" id="flexRadioDefault4">
+                                                    <input class="form-check-input" value="D" type="radio" name="answer_<?php echo $question_id; ?>" id="flexRadioDefault4">
                                                     <label class="form-check-label" for="flexRadioDefault4">
                                                         <?php echo $row['option_d'] ?>
                                                     </label>
-
                                                 </div>
                                             </div>
                                         </div>
                                     <?php
                                     }
                                     ?>
-
-                                    <button type="submit" name="submit" class="btn btn-primary py-3 w-100 mb-4">Submit</button>
+                                    <button type="submit" id="submitBtn" name="submit" class="btn btn-primary py-3 w-100 mb-4">Submit</button>
                                 </form>
+
                                 <?php
                                 if (isset($_POST['submit'])) {
-
-                                    $getExam_id = "SELECT exams.exam_id FROM multiple_choice_questions INNER JOIN exams ON multiple_choice_questions.exam_id = exams.exam_id";
-                                    $exam_id_query = mysqli_query($conn, $getExam_id);
-                                    $get_exam_id_as = mysqli_fetch_array($exam_id_query);
-                                    $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
-                                    $user_id = $_SESSION['user_id'];
-                                    $getSemester_id = $_SESSION['semester_id'];
-
-                                    $multiple_choice_questions = "SELECT * from multiple_choice_questions WHERE exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND() limit 10";
-
-                                    $query = mysqli_query($conn, $multiple_choice_questions);
-
                                     foreach ($_POST as $key => $value) {
                                         if (strpos($key, 'answer_') !== false) {
                                             $question_id = substr($key, strlen('answer_'));
                                             $answer = $_POST[$key];
+                                            $getUser_id = $_SESSION['user_id'];
+                                            $getUserSemester = $_SESSION['semester_id'];
+                                            $insert_query = "
+                                                    INSERT INTO `answers`(question_id,user_id, semester_id,exam_id, answer_text) VALUES ('$question_id','$getUser_id','$getUserSemester','$GET_ID_OF_EXAM','$answer')
+                                                    ";
 
-                                            $sql = "SELECT * FROM multiple_choice_questions WHERE exam_id = '$GET_ID_OF_EXAM' AND question_id = '$question_id'";
-                                            $result = mysqli_query($conn, $sql);
-                                            $row = mysqli_fetch_assoc($result);
-                                            $get = $row['question_text'];
-                                            $Insert = "INSERT INTO answers (question_id, user_id, exam_id, selected_option) VALUES ('$question_id', '$user_id', '$GET_ID_OF_EXAM', '$answer')";
+                                                    // echo $insert_query."<br>";
+                                                    // die();
 
-                                            // echo $Insert."<br>";
-                                            // die();
-                                            $inserAns = mysqli_query($conn, $Insert);
-
-                                            if ($inserAns) {
-                                                echo "Success" . "<br>";
+                                            $store_question = mysqli_query($conn, $insert_query);
+                                            if ($store_question) {
+                                                echo "success";
+                                                $update = "UPDATE multiple_choice_questions SET is_completed = 'completed' WHERE multiple_choice_questions.exam_id = '$GET_ID_OF_EXAM'";
+                                                $upadted = mysqli_query($conn, $update);
+                                                ?>
+                                                <script>
+                                                    // clearInterval(timerInterval);
+                                                </script>
+                                                <?php
                                             } else {
-                                                echo "Unsuccess" . "<br>";
+                                                echo "Unsuccess";
                                             }
-                                        }
+                                        // }
                                     }
                                 }
+                            }
                                 ?>
 
                             </div>

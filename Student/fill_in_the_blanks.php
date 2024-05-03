@@ -10,13 +10,13 @@ if ($_SESSION['role_id'] == 4) {
         header("location:../index.php");
     }
 
-    
+
     $getExam_id = "SELECT exams.exam_id FROM fill_in_the_blanks INNER JOIN exams ON fill_in_the_blanks.exam_id = exams.exam_id";
-    $exam_id_query = mysqli_query($conn,$getExam_id);
+    $exam_id_query = mysqli_query($conn, $getExam_id);
     $get_exam_id_as = mysqli_fetch_array($exam_id_query);
     $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
-    
-    
+
+
     // $getExam_Type = "SELECT exams.exam_type from exams where exams.semester_id = '$getUserSemester AND exams.exam_id = '$GET_ID_OF_EXAM''";
     // $getExam_type_data = mysqli_query($conn,$getExam_Type);
     // $queryyy = mysqli_fetch_array($getExam_type_data);
@@ -24,11 +24,30 @@ if ($_SESSION['role_id'] == 4) {
     // $time = "SELECT exams.exam_duration_minutes,exams.exam_id,exams.semester_id FROM exams WHERE exams.semester_id = '$getUserSemester' AND exams.exam_id = '$get#
     // '";
 
-    $getExamCheck = "SELECT *,
-    TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
-FROM `exams`
+    $getExamCheck = "SELECT exams.*,
+    TIMESTAMPDIFF(DAY, CURDATE(), exams.start_datetime) AS days_until_start
+FROM exams
+INNER JOIN (
+    SELECT exam_id
+    FROM true_false_question
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM multiple_choice_questions
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM questions
+    WHERE is_completed = 'not_completed'
+    UNION
+    SELECT exam_id
+    FROM fill_in_the_blanks
+    WHERE is_completed = 'not_completed'
+) AS incomplete_exams
+ON exams.exam_id = incomplete_exams.exam_id
 WHERE exams.exam_status = 'active'
-AND DATE(start_datetime) = CURDATE()
+    AND DATE(exams.start_datetime) = CURDATE();
+
 ";
     $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
     $setuser = mysqli_query($conn, $isCheated);
@@ -106,22 +125,71 @@ AND DATE(start_datetime) = CURDATE()
 
         <body>
             <div class="container-xxl position-relative bg-white d-flex p-0">
-                <!-- Spinner Start -->
-                <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+                <?php
+                $get_exam_duration_query = "SELECT exam_duration_minutes FROM exams WHERE exam_id = '$GET_ID_OF_EXAM'"; // Assuming you have an exam_id available
+                $getTime = mysqli_query($conn, $get_exam_duration_query);
+                $getTimer = mysqli_fetch_array($getTime);
+                $counter = $getTimer['exam_duration_minutes'];
+                $hours = $counter * 3600;
+                ?>
+                <script>
+                    window.onload = function() {
+                        var duration = <?php echo $hours; ?>; // Duration of the exam in seconds
+                        var timerDisplay = document.getElementById('timer');
+                        var startTime = localStorage.getItem('startTime');
+                        var storedDuration = localStorage.getItem('duration');
+                        
+                        if (startTime && storedDuration) {
+                            // Calculate the remaining time based on the stored start time and duration
+                            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+                            duration = storedDuration - elapsedTime;
+                            if (duration < 0) {
+                                duration = 0;
+                            }
+                        } else {
+                            // Store the start time and duration in localStorage
+                            localStorage.setItem('startTime', new Date().getTime());
+                            localStorage.setItem('duration', duration);
+                        }
+                        
+                        function updateTimer() {
+                            var hours = Math.floor(duration / 3600);
+                            var minutes = Math.floor((duration % 3600) / 60);
+                            var seconds = duration % 60;
+                            
+                            timerDisplay.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+
+                            if (duration <= 0) {
+                                clearInterval(timerInterval); // Stop the timer
+                                // Auto-submit the exam by submitting the form
+                                document.getElementById('examForm').submit();
+                              
+                            }
+
+                            duration--; // Decrement the duration
+                        }
+
+                        // Update the timer every second
+                        var timerInterval = setInterval(updateTimer, 1000);
+                    };
+                </script>
+                    <!-- Spinner Start -->
+                <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
-                </div>
+                </div> -->
                 <!-- Spinner End -->
 
 
                 <div class="container-fluid">
                     <div class="row h-100 align-items-center justify-content-center" style="min-height: 100vh;">
                         <div class="col-12 col-sm-10 col-md-8 col-lg-6 col-xl-5">
+                            <div id="timer" class="h1 text-center"></div>
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
                                 <h3 class="text-center">Fill In the Blanks </h3>
                                 <?php
-                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 10";
+                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 15";
                                 $query = mysqli_query($conn, $get_fill_in_the_blanks);
                                 $count = 1;
 
@@ -129,7 +197,7 @@ AND DATE(start_datetime) = CURDATE()
                                 while ($row = mysqli_fetch_assoc($query)) {
                                     $question_id = $row['question_id'];
                                 ?>
-                                    <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
+                                    <form method="post" id="examForm" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
                                         <label for="" class="col-sm-12 col-form-label"><?php echo $count++ . ". " . $row['question_text'] ?></label>
                                         <div class="row mb-3">
                                             <div class="col-sm-12">
@@ -158,9 +226,13 @@ AND DATE(start_datetime) = CURDATE()
                                                 $store_question = mysqli_query($conn, $insert_query);
                                                 if ($store_question) {
                                                     echo "success";
-                                                    $update = "UPDATE fill_in_the_blanks SET is_completed = 'completed' WHERE fill_in_the_blanks.exam_id = '$question_id' ";
-
+                                                    $update = "UPDATE fill_in_the_blanks SET is_completed = 'completed' WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ";
                                                     $upadted = mysqli_query($conn, $update);
+                                                    ?>
+                                                    <script>
+                                                        clearInterval(timerInterval);
+                                                    </script>
+                                                <?php
                                                 } else {
                                                     echo "Unsuccess";
                                                 }

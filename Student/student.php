@@ -64,11 +64,30 @@ if ($_SESSION['role_id'] == 3) {
                     <div class="row g-4">
                         <?php
                         // $getExamCheck = "SELECT * FROM `exams` WHERE exams.exam_status = 'active'";
-                        $getExamCheck = "SELECT *,
-                        TIMESTAMPDIFF(DAY, CURDATE(), start_datetime) AS days_until_start
-                    FROM `exams`
+                        $getExamCheck = "SELECT exams.*,
+                        TIMESTAMPDIFF(DAY, CURDATE(), exams.start_datetime) AS days_until_start
+                    FROM exams
+                    INNER JOIN (
+                        SELECT exam_id
+                        FROM true_false_question
+                        WHERE is_completed = 'not_completed'
+                        UNION
+                        SELECT exam_id
+                        FROM multiple_choice_questions
+                        WHERE is_completed = 'not_completed'
+                        UNION
+                        SELECT exam_id
+                        FROM questions
+                        WHERE is_completed = 'not_completed'
+                        UNION
+                        SELECT exam_id
+                        FROM fill_in_the_blanks
+                        WHERE is_completed = 'not_completed'
+                    ) AS incomplete_exams
+                    ON exams.exam_id = incomplete_exams.exam_id
                     WHERE exams.exam_status = 'active'
-                    AND DATE(start_datetime) = CURDATE()
+                        AND DATE(exams.start_datetime) = CURDATE();
+                    
                     ";
                         $isCheated  = "SELECT * FROM users WHERE users.is_cheated = 'no' AND users.is_completed = 'not_completed' AND users.role_id = 1";
                         
