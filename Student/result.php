@@ -62,7 +62,10 @@ if ($_SESSION['role_id'] == 3) {
                 ?>
                 <div class="container-fluid pt-4 px-4">
                     <div class="row g-4">
-                        <select name="teacher" class="form-select mb-3" aria-label="Default select example">
+                    <?php
+                    
+                    ?>    
+                    <select name="teacher" class="form-select mb-3" aria-label="Default select example">
                             <option selected disabled>Select Exam</option>
 
                         </select>

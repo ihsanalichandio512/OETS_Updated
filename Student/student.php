@@ -127,15 +127,15 @@ if ($_SESSION['role_id'] == 3) {
                         $sql = "
                         SELECT users.*
                         FROM users
-                        WHERE users.user_id = '$getUser_id'
+                        WHERE users.user_id = 4
                         AND (
-                            (SELECT COUNT(*) FROM true_false_question WHERE true_false_question.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            (SELECT COUNT(*) FROM true_false_question WHERE true_false_question.is_completed = 'completed' AND user_id = 4) > 0
                             AND
-                            (SELECT COUNT(*) FROM multiple_choice_questions WHERE multiple_choice_questions.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            (SELECT COUNT(*) FROM multiple_choice_questions WHERE multiple_choice_questions.is_completed = 'completed' AND user_id = 4) > 0
                             AND
-                            (SELECT COUNT(*) FROM fill_in_the_blanks WHERE fill_in_the_blanks.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            (SELECT COUNT(*) FROM fill_in_the_blanks WHERE fill_in_the_blanks.is_completed = 'completed' AND user_id = 4) > 0
                             AND
-                            (SELECT COUNT(*) FROM questions WHERE questions.is_completed = 'completed' AND user_id = '$getUser_id') > 0
+                            (SELECT COUNT(*) FROM questions WHERE questions.is_completed = 'completed' AND user_id = 4 AND questions.is_right = 'right') > 0 
                         );
 
                         ";

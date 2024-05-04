@@ -243,7 +243,7 @@ WHERE exams.exam_status = 'active'
                                             $getUser_id = $_SESSION['user_id'];
                                             $getUserSemester = $_SESSION['semester_id'];
                                             $insert_query = "
-                                                    INSERT INTO `answers`(question_id,user_id, semester_id,exam_id, answer_text) VALUES ('$question_id','$getUser_id','$getUserSemester','$GET_ID_OF_EXAM','$answer')
+                                                    INSERT INTO `answers`(question_id,user_id, semester_id,exam_id, answer_text,question_type) VALUES ('$question_id','$getUser_id','$getUserSemester','$GET_ID_OF_EXAM','$answer','multiple_choice_questions')
                                                     ";
 
                                                     // echo $insert_query."<br>";
@@ -259,7 +259,7 @@ WHERE exams.exam_status = 'active'
                                                     clearInterval(timerInterval);
                                                 </script>
                                                 <?php
-                                                header("location:give_exam.php");
+                                                 echo "<script>window.location.href = './give_exam.php'</script>";
                                             } else {
                                                 echo "Unsuccess";
                                             }

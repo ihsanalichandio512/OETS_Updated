@@ -73,7 +73,13 @@ if ($_SESSION['role_id'] == 1) {
                 $get_exam_id_as = mysqli_fetch_array($exam_id_query);
                 $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
 
-                $sql = "SELECT * from questions where exam_id  = '$GET_ID_OF_EXAM'";
+                $sql = "SELECT DISTINCT questions.*,exams.exam_id ,answers.answer_text,answers.question_type 
+                FROM questions 
+                INNER JOIN answers ON answers.question_id = questions.question_id
+                INNER JOIN exams ON exams.exam_id = questions.exam_id
+                AND exams.exam_id = '$GET_ID_OF_EXAM'
+                AND answers.question_type = 'long_answer'
+                ";
                 $query = mysqli_query($conn,$sql);
                 ?>
 <table class="table">
@@ -84,6 +90,7 @@ if ($_SESSION['role_id'] == 1) {
                                     <th scope="col">Mark</th>
                                     <th scope="col">Is Right</th>
                                     <th scope="col">Exam_id</th>
+                                    <th scope="col">Student Answer</th>
                                     <th scope="col" class="text-center">Action</th>
                                 </tr>
                             </thead>
@@ -98,6 +105,7 @@ if ($_SESSION['role_id'] == 1) {
                                         <td><?php echo $row['question_mark']; ?></td>
                                         <td><?php echo $row['is_right']; ?></td>
                                         <td><?php echo $row['exam_id']; ?></td>
+                                        <td><?php echo $row['answer_text'];?></td>
                                         <td>
                                             <a href="./update_long_answer.php?id=<?php echo $row['question_id']; ?>"><button class="btn btn-success m-2">right</button></a>
                                         </td>
