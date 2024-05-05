@@ -1,6 +1,9 @@
 <?php
 session_start();
 include "../db/dbConnection.php";
+// require_once('../vendor/autoload.php'); 
+
+
 if ($_SESSION['role_id'] == 3) {
     header("location:../Teacher/teacher.php");
 } elseif ($_SESSION['role_id'] == 4) {
@@ -41,6 +44,8 @@ if ($_SESSION['role_id'] == 3) {
 
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
         <style>
             .marksheet {
                 width: 80%;
@@ -176,39 +181,16 @@ if ($_SESSION['role_id'] == 3) {
                                     </tr>
                                 </tbody>
                             </table>
-                            <form action="download_marksheet.php" method="post">
+                            <!-- <form action="download_marksheet.php" method="post">
                                 <input type="hidden" name="user_name" value="<?php echo $user_name; ?>">
                                 <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
                                 <button type="submit">Download PDF</button>
-                            </form>
+                            </form> -->
+                            <div class="text-center mt-3">
+          <button type="button" class="btn btn-primary" id="download-pdf">Download PDF</button>
+        </div>
 
-                            <?php
-                            // Access form data
-                            $user_name = $_POST['user_name'];
-                            $user_id = $_POST['user_id'];
-                            // ... retrieve other data from form
-
-                            // Include PDF library (e.g., mPDF)
-                            // require_once('mpdf/vendor/autoload.php');
-                            require_once('../vendor/autoload.php');
-
-                            // $mpdf = new \Mpdf\Mpdf();
-                            use Mpdf\Mpdf;
-
-                            // Construct PDF content with marksheet data
-                            $html = '
-  <h1>Marksheet</h1>
-  <p>Student Name: ' . $user_name . '</p>
-  ';
-
-                            $mpdf->WriteHTML($html);
-
-                            // Set headers and output PDF
-                            $mpdf->Output('marksheet.pdf', \Mpdf\Output\Destination::DOWNLOAD);
-
-                            exit; // Important to stop further script execution
-
-                            ?>
+        
                         </div>
                     </div>
                 </div>
@@ -217,6 +199,18 @@ if ($_SESSION['role_id'] == 3) {
 
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-OgwbZS7/BXzYznvBMqUKE1l+sUSyM9j/tznwIcbsoDkLN5OA04sRuxzOMjvt+z" crossorigin="anonymous"></script>
 
+<script src="../js/jpdf.js"></script>
+            
+  <script>
+    const downloadBtn = document.getElementById('download-pdf');
+    const marksheetContent = document.getElementById('marksheet-content');
+
+    downloadBtn.addEventListener('click', function() {
+      const doc = new jsPDF();
+      doc.addImage(html2canvas(marksheetContent, { scale: 2 }), 'PNG', 10, 10);
+      doc.save('marksheet.pdf');
+    });
+  </script>
                 <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
                 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
                 <script src="../lib/chart/chart.min.js"></script>
