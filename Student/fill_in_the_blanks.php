@@ -17,13 +17,6 @@ if ($_SESSION['role_id'] == 4) {
     $GET_ID_OF_EXAM =  $get_exam_id_as['exam_id'];
 
 
-    // $getExam_Type = "SELECT exams.exam_type from exams where exams.semester_id = '$getUserSemester AND exams.exam_id = '$GET_ID_OF_EXAM''";
-    // $getExam_type_data = mysqli_query($conn,$getExam_Type);
-    // $queryyy = mysqli_fetch_array($getExam_type_data);
-
-    // $time = "SELECT exams.exam_duration_minutes,exams.exam_id,exams.semester_id FROM exams WHERE exams.semester_id = '$getUserSemester' AND exams.exam_id = '$get#
-    // '";
-
     $getExamCheck = "SELECT exams.*,
     TIMESTAMPDIFF(DAY, CURDATE(), exams.start_datetime) AS days_until_start
 FROM exams

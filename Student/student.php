@@ -146,10 +146,108 @@ if ($_SESSION['role_id'] == 3) {
                                 <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
                                     <div class="ms-3">
                                         <p class="mb-2">Get Result</p>
-                                        <a href="./result.php" type="submit" name="get_result" class="mb-0 btn btn-primary">Get Result</a>
-
+                                       <form action="" method="post">
+                                           <!-- <a href="./result.php" type="submit" name="get_result" class="mb-0 btn btn-primary">Get Result</a> -->
+                                           <input type='submit' name="get_result" value="get Result" class="btn btn-info">
+                                        </form>
+                                           
                                         <?php
-                                        
+                                        $geting_fill_in_the_blanks = "
+                                            SELECT
+                                            SUM(CASE WHEN fill_in_the_blanks.correct_answer = answers.answer_text THEN 1 ELSE 0 END) AS total_fill_in_the_blanks_marks
+                                            FROM fill_in_the_blanks
+                                            INNER JOIN answers ON answers.exam_id = fill_in_the_blanks.exam_id AND answers.question_type = 'fill_in_the_blanks'
+";
+
+                                        $fetch_marks = mysqli_query($conn, $geting_fill_in_the_blanks);
+
+                                        $row = mysqli_fetch_assoc($fetch_marks);
+                                        $fill_in_the_blanks_marks = $row['total_fill_in_the_blanks_marks'];
+
+
+                                        // mcqs marks
+                                        $getting_mcqs_marks = "
+                                        SELECT
+                                        SUM(CASE WHEN answers.answer_text = multiple_choice_questions.correct_option THEN multiple_choice_questions.question_mark ELSE 0 END) AS multiple_choice_questions_score
+                                        FROM multiple_choice_questions
+                                        INNER JOIN answers ON multiple_choice_questions.exam_id = answers.exam_id
+                                        WHERE answers.question_type = 'multiple_choice_questions' AND answers.question_id = multiple_choice_questions.question_id
+                                        ";
+                                        $fetch_mcq_marks = mysqli_query($conn, $getting_mcqs_marks);
+
+                                        $row2 = mysqli_fetch_assoc($fetch_mcq_marks);
+                                        $mcqs_marks = $row2['multiple_choice_questions_score'];
+
+                                        //
+
+                                        // long answers 
+                                        $getting_long_answers = "
+                                            SELECT
+                                        SUM(CASE WHEN  questions.is_right = 'right' THEN questions.question_mark ELSE 0 END) AS long_answers_marks
+                                        FROM questions
+                                        INNER JOIN answers ON questions.exam_id = answers.exam_id
+                                        WHERE answers.question_type = 'long_answer' AND answers.question_id = questions.question_id
+                                            ";
+                                        $fetch_long_answer = mysqli_query($conn, $getting_long_answers);
+
+                                        $row3 = mysqli_fetch_assoc($fetch_long_answer);
+                                        $long_answer_marks = $row3['long_answers_marks'];
+                                        // 
+
+                                        // true fasle marks 
+                                        $getting_true_false = "
+                                        SELECT
+                                        SUM(CASE WHEN  true_false_question.correct_answer = answers.answer_text THEN true_false_question.question_mark ELSE 0 END) AS `true_false_question_marks`
+                                        FROM true_false_question
+                                        INNER JOIN answers ON true_false_question.exam_id = answers.exam_id
+                                        WHERE answers.question_type = 'true_false_question' AND answers.question_id = true_false_question.question_id                                            
+                                        ";
+                                        $fetch_true = mysqli_query($conn, $getting_true_false);
+
+                                        $row4 = mysqli_fetch_assoc($fetch_true);
+                                        $true_false_marks = $row4['true_false_question_marks'];
+                                // 
+                                        $get_more_detail = "
+                                        SELECT
+                                        answers.student_id,
+                                        exams.semester_id,
+                                        answers.batch_id,
+                                        exams.exam_id,
+                                        COUNT(*) AS total_attempted_questions
+                                        FROM answers
+                                        INNER JOIN exams ON answers.exam_id = exams.exam_id
+                                        INNER JOIN semesters ON answers.semester_id = semesters.semester_id
+                                        INNER JOIN batches ON answers.batch_id = batches.batch_id
+                                        GROUP BY answers.student_id, semesters.semester_id, batches.batch_id, exams.exam_id;
+
+                                        ";
+
+                                        $fetch_more = mysqli_query($conn, $get_more_detail);
+
+                                        $row5 = mysqli_fetch_assoc($fetch_more);
+                                        $student_id = $_SESSION['user_id'];
+                                        $semester_id = $_SESSION['semester_id'];
+                                        $exam_id = $row5['exam_id'];
+                                        $batch_id = $row5['batch_id'];
+                                        $total_attempted_questions = $row5['total_attempted_questions'];
+                                        $total_marks = $fill_in_the_blanks_marks + $mcqs_marks + $long_answer_marks + $true_false_marks;
+
+                                        if (isset($_POST['get_result'])) {
+                                            $insert_into_exam_result = "
+                                            INSERT INTO `exam_results`(`student_id`, `exam_id`, `semester_id`, `batch_id`, `long_answer_score`, `mcq_score`, `true_false_score`, `fill_in_the_blanks_score`, `score`, `total_questions`) VALUES ('$student_id','$exam_id','$semester_id','$batch_id','$long_answer_marks','$mcqs_marks','$true_false_marks','$fill_in_the_blanks_marks','$total_marks','$total_attempted_questions')
+                                            ";
+                                           
+                                            $run_query = mysqli_query($conn,$insert_into_exam_result);
+                                            if($run_query){
+                                                echo "<script>window.location.href = './result.php'</script>";
+                                            }else{
+                                                
+                                                echo "<div class='alert alert-danger'>Error</div>";
+                                            }
+
+                                        }
+
+
                                         ?>
 
                                     </div>
