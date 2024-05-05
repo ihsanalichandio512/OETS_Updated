@@ -113,60 +113,54 @@ WHERE exams.exam_status = 'active'
 
     <body>
         <div class="container-xxl position-relative bg-white d-flex p-0">
-        <?php
-                $get_exam_duration_query = "SELECT exam_duration_minutes FROM exams WHERE exam_id = '$GET_ID_OF_EXAM'"; // Assuming you have an exam_id available
-                $getTime = mysqli_query($conn, $get_exam_duration_query);
-                $getTimer = mysqli_fetch_array($getTime);
-                $counter = $getTimer['exam_duration_minutes'];
-                $hours = $counter * 3600;
-                ?>
-                <script>
-                    window.onload = function() {
-                        var duration = <?php echo $hours; ?>; // Duration of the exam in seconds
+         <script>
+                     window.onload = function() {
+                        <?php // Assuming you have an exam_id available
+                        $get_exam_duration_query = "SELECT exam_duration_minutes FROM exams WHERE exam_id = '$GET_ID_OF_EXAM'";
+                        $getTime = mysqli_query($conn, $get_exam_duration_query);
+                        $getTimer = mysqli_fetch_array($getTime);
+                        $counter = $getTimer['exam_duration_minutes'];
+                        $duration = $counter * 3600;
+                        ?>
+
                         var timerDisplay = document.getElementById('timer');
                         var startTime = localStorage.getItem('startTime');
                         var storedDuration = localStorage.getItem('duration');
-                        
-                        if (startTime && storedDuration) {
-                            // Calculate the remaining time based on the stored start time and duration
-                            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
-                            duration = storedDuration - elapsedTime;
-                            if (duration < 0) {
-                                duration = 0;
-                            }
-                        } else {
-                            // Store the start time and duration in localStorage
+
+                        if (!startTime || !storedDuration) {
+                            // First time attempt
                             localStorage.setItem('startTime', new Date().getTime());
                             localStorage.setItem('duration', duration);
+                        } else {
+                            // Update startTime to reflect elapsed time
+                            localStorage.setItem('startTime', new Date().getTime() - (storedDuration * 1000));
                         }
-                        
+
                         function updateTimer() {
+                            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+                            duration = storedDuration - elapsedTime;
+
+                            if (duration <= 0) {
+                                clearInterval(timerInterval);
+                                document.getElementById('examForm').submit();
+                            }
+
                             var hours = Math.floor(duration / 3600);
                             var minutes = Math.floor((duration % 3600) / 60);
                             var seconds = duration % 60;
-                            
+
                             timerDisplay.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
-
-                            if (duration <= 0) {
-                                clearInterval(timerInterval); // Stop the timer
-                                // Auto-submit the exam by submitting the form
-                                document.getElementById('examForm').submit();
-                              
-                            }
-
-                            duration--; // Decrement the duration
                         }
 
-                        // Update the timer every second
                         var timerInterval = setInterval(updateTimer, 1000);
                     };
                 </script>   
         <!-- Spinner Start -->
-            <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-            </div> -->
+            </div>
             <!-- Spinner End -->
           
 

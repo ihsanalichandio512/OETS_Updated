@@ -125,53 +125,55 @@ WHERE exams.exam_status = 'active'
 
         <body>
             <div class="container-xxl position-relative bg-white d-flex p-0">
-                <?php
-                $get_exam_duration_query = "SELECT exam_duration_minutes FROM exams WHERE exam_id = '$GET_ID_OF_EXAM'"; // Assuming you have an exam_id available
-                $getTime = mysqli_query($conn, $get_exam_duration_query);
-                $getTimer = mysqli_fetch_array($getTime);
-                $counter = $getTimer['exam_duration_minutes'];
-                $hours = $counter * 3600;
-                ?>
+                
                 <script>
-                   window.onload = function() {
-        var duration = <?php echo $hours; ?>; // Duration of the exam in seconds
-        var timerDisplay = document.getElementById('timer');
-        var startTime = localStorage.getItem('startTime');
-        var storedDuration = localStorage.getItem('duration');
+                    window.onload = function() {
+                        <?php // Assuming you have an exam_id available
+                        $get_exam_duration_query = "SELECT exam_duration_minutes FROM exams WHERE exam_id = '$GET_ID_OF_EXAM'";
+                        $getTime = mysqli_query($conn, $get_exam_duration_query);
+                        $getTimer = mysqli_fetch_array($getTime);
+                        $counter = $getTimer['exam_duration_minutes'];
+                        $duration = $counter * 3600;
+                        ?>
 
-        if (!startTime || !storedDuration) {
-            // If start time or stored duration is not available, reset the timer
-            localStorage.setItem('startTime', new Date().getTime());
-            localStorage.setItem('duration', duration);
-        }
+                        var timerDisplay = document.getElementById('timer');
+                        var startTime = localStorage.getItem('startTime');
+                        var storedDuration = localStorage.getItem('duration');
 
-        function updateTimer() {
-            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
-            duration = storedDuration - elapsedTime;
+                        if (!startTime || !storedDuration) {
+                            // First time attempt
+                            localStorage.setItem('startTime', new Date().getTime());
+                            localStorage.setItem('duration', duration);
+                        } else {
+                            // Update startTime to reflect elapsed time
+                            localStorage.setItem('startTime', new Date().getTime() - (storedDuration * 1000));
+                        }
 
-            if (duration <= 0) {
-                clearInterval(timerInterval); // Stop the timer
-                // Auto-submit the exam by submitting the form
-                document.getElementById('examForm').submit();
-            }
+                        function updateTimer() {
+                            var elapsedTime = Math.floor((new Date().getTime() - startTime) / 1000);
+                            duration = storedDuration - elapsedTime;
 
-            var hours = Math.floor(duration / 3600);
-            var minutes = Math.floor((duration % 3600) / 60);
-            var seconds = duration % 60;
+                            if (duration <= 0) {
+                                clearInterval(timerInterval);
+                                document.getElementById('examForm').submit();
+                            }
 
-            timerDisplay.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
-        }
+                            var hours = Math.floor(duration / 3600);
+                            var minutes = Math.floor((duration % 3600) / 60);
+                            var seconds = duration % 60;
 
-        // Update the timer every second
-        var timerInterval = setInterval(updateTimer, 1000);
-    };
+                            timerDisplay.textContent = hours + 'h ' + minutes + 'm ' + seconds + 's';
+                        }
+
+                        var timerInterval = setInterval(updateTimer, 1000);
+                    };
                 </script>
-                    <!-- Spinner Start -->
-                <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+                <!-- Spinner Start -->
+                <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                         <span class="sr-only">Loading...</span>
                     </div>
-                </div> -->
+                </div>
                 <!-- Spinner End -->
 
 
@@ -214,7 +216,7 @@ WHERE exams.exam_status = 'active'
                                                 $getUser_id = $_SESSION['user_id'];
                                                 $getUserSemester = $_SESSION['semester_id'];
                                                 $get_batch_id = "SELECT students.batch_id FROM students WHERE students.user_id = '$getUser_id'";
-                                                $runBatch_query = mysqli_query($conn,$get_batch_id);
+                                                $runBatch_query = mysqli_query($conn, $get_batch_id);
                                                 $Got_batch_id = mysqli_fetch_array($runBatch_query);
                                                 $batch_id = $Got_batch_id['batch_id'];
                                                 $insert_query = "
@@ -225,12 +227,12 @@ WHERE exams.exam_status = 'active'
                                                     echo "success";
                                                     $update = "UPDATE fill_in_the_blanks SET is_completed = 'completed' WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ";
                                                     $upadted = mysqli_query($conn, $update);
-                                                    ?>
+                                    ?>
                                                     <script>
                                                         clearInterval(timerInterval);
                                                     </script>
-                                                <?php
-                                                echo "<script>window.location.href = './give_exam.php'</script>";
+                                    <?php
+                                                    echo "<script>window.location.href = './give_exam.php'</script>";
                                                 } else {
                                                     echo "Unsuccess";
                                                 }
