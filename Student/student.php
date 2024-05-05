@@ -146,7 +146,12 @@ if ($_SESSION['role_id'] == 3) {
                                 <div class="bg-light rounded d-flex align-items-center justify-content-center p-4">
                                     <div class="ms-3">
                                         <p class="mb-2">Get Result</p>
-                                        <a href="./result.php" class="mb-0"><input type="button" class="btn btn-primary " value="Get Result"></a>
+                                        <a href="./result.php" type="submit" name="get_result" class="mb-0 btn btn-primary">Get Result</a>
+
+                                        <?php
+                                        
+                                        ?>
+
                                     </div>
                                 </div>
                             </div>
