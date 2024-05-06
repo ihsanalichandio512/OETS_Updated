@@ -1,7 +1,6 @@
 <?php
 session_start();
 include "../db/dbConnection.php";
-// require_once('../vendor/autoload.php'); 
 
 
 if ($_SESSION['role_id'] == 3) {
@@ -44,7 +43,6 @@ if ($_SESSION['role_id'] == 3) {
 
         <!-- Template Stylesheet -->
         <link href="../css/style.css" rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
         <style>
             .marksheet {
@@ -63,11 +61,11 @@ if ($_SESSION['role_id'] == 3) {
     <body>
         <div class="container-xxl position-relative bg-white d-flex p-0">
             <!-- Spinner Start -->
-            <!-- <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                 <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                     <span class="sr-only">Loading...</span>
                 </div>
-            </div> -->
+            </div>
             <!-- Spinner End -->
             <?php
             include "../includes/sidebar.php";
@@ -138,7 +136,7 @@ if ($_SESSION['role_id'] == 3) {
                             <h5 class="card-title">Marksheet</h5>
                             <img class="img-thumbnail rounded-circle student-picture" alt="Student Picture" src=".<?php echo $user_photo; ?>" alt="User Photo">
                         </div>
-                        <div class="card-body">
+                        <div class="card-body" id="marksheet-content">
                             <table class="table table-bordered">
                                 <tbody>
                                     <tr>
@@ -181,48 +179,79 @@ if ($_SESSION['role_id'] == 3) {
                                     </tr>
                                 </tbody>
                             </table>
-                            <!-- <form action="download_marksheet.php" method="post">
-                                <input type="hidden" name="user_name" value="<?php echo $user_name; ?>">
-                                <input type="hidden" name="user_id" value="<?php echo $user_id; ?>">
-                                <button type="submit">Download PDF</button>
-                            </form> -->
+
                             <div class="text-center mt-3">
-          <button type="button" class="btn btn-primary" id="download-pdf">Download PDF</button>
-        </div>
+                                <button type="button" class="btn btn-primary" id="download-pdf">Download PDF</button>
+                            </div>
 
-        
-                        </div>
-                    </div>
-                </div>
 
-                
+                            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-OgwbZS7/BXzYznvBMqUKE1l+sUSyM9j/tznwIcbsoDkLN5OA04sRuxzOMjvt+z" crossorigin="anonymous"></script>
+                            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" integrity="sha512-BNaRQnYJYiPSqHHDb58B0yaPfCu+Wgds8Gp/gU33kqBtgNS4tSPHuGibyoeqMV/TJlSKda6FXzoEyYGjTe+vXA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                            <script>
+                               
+                                    // $(document).ready(function() {
+                                    //     const downloadBtn = $('#download-pdf');
+                                    //     const marksheetContent = $('#marksheet-content');
 
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-OgwbZS7/BXzYznvBMqUKE1l+sUSyM9j/tznwIcbsoDkLN5OA04sRuxzOMjvt+z" crossorigin="anonymous"></script>
+                                    //     downloadBtn.on('click', function() {
+                                    //         html2canvas(marksheetContent[0], {
+                                    //             scale: 2,
+                                    //             useCORS: true,
+                                    //             logging: true
+                                    //         }).then(canvas => {
+                                    //             const imageData = canvas.toDataURL('image/png');
+                                    //             if (typeof jsPDF === 'undefined') {
+                                    //                 console.error('jsPDF is not loaded!');
+                                    //                 alert('Error generating PDF. Please try again later.');
+                                    //                 return;
+                                    //             }
+                                    //             const doc = new jsPDF();
+                                    //             doc.addImage(imageData, 'PNG', 10, 10);
+                                    //             doc.save('marksheet.pdf');
+                                    //         }).catch(error => {
+                                    //             console.error('Error generating PDF:', error);
+                                    //             alert('Error generating PDF. Please try again later.');
+                                    //         });
+                                    //     });
+                                    // });
+                                    $(document).ready(function() {
+    const downloadBtn = $('#download-pdf');
+    const marksheetContent = $('#marksheet-content');
 
-<script src="../js/jpdf.js"></script>
-            
-  <script>
-    const downloadBtn = document.getElementById('download-pdf');
-    const marksheetContent = document.getElementById('marksheet-content');
-
-    downloadBtn.addEventListener('click', function() {
-      const doc = new jsPDF();
-      doc.addImage(html2canvas(marksheetContent, { scale: 2 }), 'PNG', 10, 10);
-      doc.save('marksheet.pdf');
+    downloadBtn.on('click', function() {
+        html2canvas(marksheetContent[0], {
+            scale: 2,  // Adjust scale for better quality (optional)
+            useCORS: true,
+            logging: true  // Enable logging for debugging (optional)
+        }).then(canvas => {
+            const imageData = canvas.toDataURL('image/png');
+            if (typeof jsPDF === 'undefined') {
+                console.error('jsPDF is not loaded!');
+                return;
+            }
+            const doc = new jsPDF();
+            doc.addImage(imageData, 'PNG', 10, 10);
+            doc.save('marksheet.pdf');
+        }).catch(error => {
+            console.error('Error generating PDF:', error);
+        });
     });
-  </script>
-                <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-                <script src="../lib/chart/chart.min.js"></script>
-                <script src="../lib/easing/easing.min.js"></script>
-                <script src="../lib/waypoints/waypoints.min.js"></script>
-                <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
-                <script src="../lib/tempusdominus/js/moment.min.js"></script>
-                <script src="../lib/tempusdominus/js/moment-timezone.min.js"></script>
-                <script src="../lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+});
+                            </script>
 
-                <!-- Template Javascript -->
-                <script src="../js/main.js"></script>
+                            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+                            <script src="../lib/chart/chart.min.js"></script>
+                            <script src="../lib/easing/easing.min.js"></script>
+                            <script src="../lib/waypoints/waypoints.min.js"></script>
+                            <script src="../lib/owlcarousel/owl.carousel.min.js"></script>
+                            <script src="../lib/tempusdominus/js/moment.min.js"></script>
+                            <script src="../lib/tempusdominus/js/moment-timezone.min.js"></script>
+                            <script src="../lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+                            <!-- Template Javascript -->
+                            <script src="../js/main.js"></script>
     </body>
 
     </html>
