@@ -81,7 +81,7 @@ WHERE exams.exam_status = 'active'
             <link href="../css/style.css" rel="stylesheet">
 
             <!-- code for disable copy cut paste right click and selection -->
-            <!-- <script>
+            <script>
                 // Disable copy-paste
                 document.addEventListener('copy', function(event) {
                     event.preventDefault();
@@ -111,7 +111,7 @@ WHERE exams.exam_status = 'active'
                         event.preventDefault();
                     }
                 });
-            </script> -->
+            </script>
             <!-- ends here -->
         </head>
 
@@ -176,7 +176,7 @@ WHERE exams.exam_status = 'active'
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
                                 <h3 class="text-center">MCQS</h3>
                                 <?php
-                                $multiple_choice_questions = "SELECT * FROM multiple_choice_questions WHERE multiple_choice_questions.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 10";
+                                $multiple_choice_questions = "SELECT * FROM multiple_choice_questions WHERE multiple_choice_questions.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 20";
                                 $query = mysqli_query($conn, $multiple_choice_questions);
                                 $count = 1;
                             

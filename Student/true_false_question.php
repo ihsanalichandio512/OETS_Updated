@@ -76,7 +76,7 @@ WHERE exams.exam_status = 'active'
             <!-- Template Stylesheet -->
             <link href="../css/style.css" rel="stylesheet">
             <!-- code for disable copy cut paste right click and selection -->
-            <!-- <script>
+            <script>
         // Disable copy-paste
         document.addEventListener('copy', function(event) {
             event.preventDefault();
@@ -106,13 +106,13 @@ WHERE exams.exam_status = 'active'
                 event.preventDefault();
             }
         });
-    </script> -->
+    </script>
             <!-- ends here -->
         </head>
 
         <body>
             <div class="container-xxl position-relative bg-white d-flex p-0">
-                <script>
+                <!-- <script>
                     window.onload = function() {
                         <?php // Assuming you have an exam_id available
                         $get_exam_duration_query = "SELECT exam_duration_minutes FROM exams WHERE exam_id = '$GET_ID_OF_EXAM'";
@@ -153,7 +153,7 @@ WHERE exams.exam_status = 'active'
 
                         var timerInterval = setInterval(updateTimer, 1000);
                     };
-                </script>
+                </script> -->
                 <!-- Spinner Start -->
                 <div id="spinner" class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
                     <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -171,7 +171,7 @@ WHERE exams.exam_status = 'active'
 
                                 <h3 class="text-center">True False</h3>
                                 <?php
-                                $true_false_question = "SELECT * FROM true_false_question WHERE true_false_question.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND() LIMIT 10";
+                                $true_false_question = "SELECT * FROM true_false_question WHERE true_false_question.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND() LIMIT 20";
                                 $query = mysqli_query($conn, $true_false_question);
                                 $count = 1;
                                 while ($row = mysqli_fetch_assoc($query)) {

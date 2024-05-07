@@ -177,7 +177,7 @@ WHERE exams.exam_status = 'active'
                             <div class="bg-light rounded p-4 p-sm-5 my-4 mx-3">
                                 <h3 class="text-center">Fill In the Blanks </h3>
                                 <?php
-                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 15";
+                                $get_fill_in_the_blanks = "SELECT * FROM fill_in_the_blanks WHERE fill_in_the_blanks.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 20";
                                 $query = mysqli_query($conn, $get_fill_in_the_blanks);
                                 $count = 1;
 

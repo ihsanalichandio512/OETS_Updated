@@ -172,7 +172,7 @@ WHERE exams.exam_status = 'active'
                                 
                                 <h3 class="text-center">Long Answers And Question</h3>
                                 <?php 
-                                $questions = "SELECT * FROM questions WHERE questions.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 10";
+                                $questions = "SELECT * FROM questions WHERE questions.exam_id = '$GET_ID_OF_EXAM' ORDER BY RAND()  LIMIT 20";
                                 $query = mysqli_query($conn, $questions);
                                 $count = 1;
                                 while($row = mysqli_fetch_assoc($query)){
