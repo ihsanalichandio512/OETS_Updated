@@ -83,7 +83,7 @@ session_start();
                                         <?php
                                         $sql = "
                                         SELECT 
-                                        exam_id, 
+                                        exams.exam_id, 
                                         start_datetime,
                                         exam_type,
                                         semesters.semester_name,
@@ -95,6 +95,7 @@ session_start();
                                         INNER JOIN subjects ON exams.subject_id = subjects.subject_id
                                         INNER JOIN teachers ON exams.teacher_id = teachers.teacher_id
                                         INNER JOIN users ON teachers.user_id = users.user_id
+                                        
                                         ";
 
                                         $res = mysqli_query($conn,$sql);

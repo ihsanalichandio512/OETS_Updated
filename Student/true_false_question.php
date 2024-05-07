@@ -218,7 +218,7 @@ WHERE exams.exam_status = 'active'
                                                     $Got_batch_id = mysqli_fetch_array($runBatch_query);
                                                     $batch_id = $Got_batch_id['batch_id'];
                                                     $insert_query = "
-                                                        INSERT INTO `answers` (question_id, user_id, semester_id, exam_id,batch_id, answer_text,question_type)
+                                                        INSERT INTO `answers` (question_id, student_id, semester_id, exam_id,batch_id, answer_text,question_type)
                                                         VALUES ('$question_id', '$getUser_id', '$getUserSemester', '$GET_ID_OF_EXAM','$batch_id', '$answer','true_false_question')";
                                                     $store_question = mysqli_query($conn, $insert_query);
                                                     if ($store_question) {
